@@ -12,11 +12,11 @@
 		$stateProvider
 		.state('zombieDice', {
 			url			: '/',
-			templateUrl	: 'partials/home.html'
+			templateUrl	: 'static/partials/home.html'
 		})
 		.state('zombieDice.game', {
 			url			: "game",
-			templateUrl	: 'partials/game.html',
+			templateUrl	: 'static/partials/game.html',
 			controller	: 'gameCtrl'
 		})
 	}]);
