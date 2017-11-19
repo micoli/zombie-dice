@@ -1,0 +1,51 @@
+<button ng-click="newGame()"> new Game</button><button ng-click="addPlayer()">Add Player</button><br><br>
+Round : {{data.rounds.indexOf(data.currentRound)+1}} / 
+Player : {{data.currentPlayer.name}}<br>
+<table class="table" >
+	<tr>
+		<td rowspan="3">
+			<b>{{data.currentPlayerScore.score}}</b>
+			<span ng-repeat="a in getNumber(data.currentPlayerScore.score) track by $index" class="brain">&nbsp;</span>
+		</td>
+		<td>
+			{{data.currentPlayerScore.brains}}
+			<span ng-repeat="a in getNumber(data.currentPlayerScore.brains) track by $index" class="brain">&nbsp;</span>
+		</td>
+		<td>
+			{{data.currentPlayerScore.bangs}}
+			<span ng-repeat="a in getNumber(data.currentPlayerScore.bangs) track by $index" class="bang">&nbsp;</span>
+		</td>
+		<td rowspan="3">
+			<button class="btn btn-default btn-sm" ng-click="nextPlayer()">next player</button>
+		</td>
+	</tr>
+	<tr>
+		<td><button class="btn btn-default btn-sm" ng-click="score('brains',1)">brain +</button></td>
+		<td><button class="btn btn-default btn-sm" ng-click="score('bangs',1)">bang +</button></td>
+	</tr>
+	<tr>
+		<td><button class="btn btn-default btn-sm" ng-click="score('brains',-1)">brain -</button></td>
+		<td><button class="btn btn-default btn-sm" ng-click="score('bangs',-1)">bang -</button></td>
+	</tr>
+</table>
+
+<table class="table table-striped" >
+	<tr>
+		<td>
+			Round 
+		</td>
+		<td ng-repeat="player in data.players">
+			<input type="text" ng-model="player.name">
+			<button type="button" class="btn btn-default btn-sm" ng-click="removePlayer(player)">
+				<span class="glyphicon glyphicon-trash"></span>
+			</button>
+		</td>
+	</tr>
+	<tr ng-repeat="round in data.rounds track by $index">
+		<td>{{ $index +1 }}</td>
+		<td ng-repeat="player in data.players">
+			<span ng-if="round == data.currentRound && player==data.currentPlayer">!!</span>
+			{{ round.scores[player.id].score }} ({{ round.scores[player.id].brains }}/{{ round.scores[player.id].bangs }})
+		</td>
+	</tr>
+</table>
