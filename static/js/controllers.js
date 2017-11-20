@@ -91,7 +91,7 @@
 					score:0						
 				};
 			}
-			$scope.data.currentPlayerScore = $scope.data.currentRound.scores[$scope.data.currentPlayer.id]
+			$scope.data.currentPlayerScore = $scope.data.currentRound.scores[$scope.data.currentPlayer.id];
 		}
 		
 		$scope.addRound = function(){
@@ -136,7 +136,11 @@
 				return v;
 			});
 		};
-		
+		$scope.setCurrentRoundAndPlayer = function(round,player){
+			$scope.data.currentPlayer = player;	
+			$scope.data.currentRound	= round;
+			$scope.data.currentPlayerScore = $scope.data.currentRound.scores[$scope.data.currentPlayer.id]
+		}
 		$scope.initGame();
 	})
 })();
