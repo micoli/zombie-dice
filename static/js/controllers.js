@@ -19,6 +19,18 @@
 		$scope.refresh();
 	})
 	.controller('gameCtrl',function($scope,$http,minirouter){
+		$scope.graphicalScores=[];
+		$scope.graphicalScoresOption= {
+		    legend : {
+		        position : 'se',  
+		        labelFormatter : function(label) {
+		            return 'y = ' + label;
+		        }, 
+		        backgroundColor : '#D2E8FF'
+		      },
+		      HtmlText : false
+		}
+
 		var names = [
 			'Adam','Adrian','Alan','Alexander','Andrew','Anthony','Austin','Benjamin','Blake','Boris','Brandon',
 			'Brian','Cameron','Carl','Charles','Christian','Christopher','Colin','Connor','Dan','David','Dominic','Dylan',
@@ -123,18 +135,23 @@
 				roundData[type]=0;
 			}
 			roundData.score = (roundData.bangs>=3)?0:roundData.brains;
+			$scope.graphicalScores=[];
 			$scope.data.players = _.map($scope.data.players,function(v){
 				v.score = 0;
-				_.each($scope.data.rounds,function(r){
+				var currentScoreEvol=[];
+				_.each($scope.data.rounds,function(r,kround){
 					_.each(r.scores,function(s,k){
 						if(k == v.id){
-							v.score+=s.score;	
+							v.score+=s.score;
+							currentScoreEvol.push([kround,s.score]);
 						}
 					});
-					
 				});
+				$scope.graphicalScores.push({label:v.name,data:currentScoreEvol});
 				return v;
 			});
+			var container = document.getElementById("results-render-0");
+			Flotr.draw(container, $scope.graphicalScores, $scope.graphicalScoresOption);
 		};
 		$scope.setCurrentRoundAndPlayer = function(round,player){
 			$scope.data.currentPlayer = player;	

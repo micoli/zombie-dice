@@ -3,7 +3,8 @@
 
 	var dwnApp = angular.module('zombieDiceCounterApp', [
 		'ui.bootstrap',
-		'ui.router'
+		'ui.router',
+		'angular-flot'
 	]);
 
 	dwnApp.config(['$stateProvider','$urlRouterProvider',function($stateProvider,$urlRouterProvider) {
