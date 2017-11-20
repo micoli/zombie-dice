@@ -1,8 +1,15 @@
-<button ng-if="!settingMode" ng-click="newGame()">New Game</button> 
-<button ng-if="!settingMode" ng-click="settings(true)">Settings</button>
-<button ng-if=" settingMode" ng-click="settings(false)">Settings OK</button>
-<br><br>
-
+<div class="container">
+    <div class="row">
+        <div class="col-md-6 col-xs-6 align-left">
+			<button ng-if="!settingMode" ng-click="newGame()">New Game</button>
+		</div> 
+        <div class="col-md-6 col-xs-6 align-right">
+			<button ng-if="!settingMode" ng-click="settings(true)">Settings</button>
+			<button ng-if=" settingMode" ng-click="settings(false)">Settings OK</button>
+		</div>
+	</div>
+</div>
+<hr>
 <div ng-if=" settingMode">
 	<button ng-click="initGame()">Init Game</button> 
 	<button ng-click="addPlayer()">Add Player</button><br><br>
@@ -18,7 +25,7 @@
 <div ng-if="!settingMode">
 	<div class="container">
 	    <div class="row">
-	        <div class="col-md-3">
+	        <div class="col-md-3 col-xs-12">
 				Round : {{data.rounds.indexOf(data.currentRound)+1}}, <b>{{data.currentPlayer.name}}</b>
 	        		<div class="imgs-score">
 					<span ng-repeat="a in getNumber(data.currentPlayerScore.score) track by $index" class="brain">&nbsp;</span>
@@ -27,7 +34,7 @@
 					<b>{{data.currentPlayerScore.score}}</b><br>
 				</div>
 	        </div>
-	        <div class="col-md-3">
+	        <div class="col-md-3  col-xs-6">
 	        		<div class="figure-score">Brains : {{ data.currentPlayerScore.brains }}</div>
 	        		<div class="imgs-score">
 					<span ng-repeat="a in getNumber(data.currentPlayerScore.brains) track by $index" class="small brain">&nbsp;</span>
@@ -37,7 +44,7 @@
 					<button class="btn btn-default btn-sm" ng-click="score('brains',-1)">-</button>
 				</div>
 	        </div>
-	        <div class="col-md-3">
+	        <div class="col-md-3 col-xs-6">
 		        <div class="figure-score">Bangs : {{ data.currentPlayerScore.bangs }}</div>
 	        		<div class="imgs-score">
 					<span ng-repeat="a in getNumber(data.currentPlayerScore.bangs) track by $index" class="small bang">&nbsp;</span>
@@ -47,7 +54,7 @@
 					<button class="btn btn-default btn-sm" ng-click="score('bangs',-1)">-</button>
 				</div>
 	        </div>
-	        <div class="col-md-3">
+	        <div class="col-md-3 col-xs-12">
 	        		<div class="roundaction">
 	        			<br><br>
 					<button class="btn btn-default btn-sm" ng-click="nextPlayer()">Next player</button>
@@ -59,15 +66,15 @@
 	<table class="table table-striped" >
 		<tr>
 			<td>
-				Round 
+				&nbsp;
 			</td>
-			<td ng-repeat="player in data.players">
+			<td ng-repeat="player in data.players" class="align-center">
 				<b>{{ player.name }} ({{ player.score }})</b>
 			</td>
 		</tr>
 		<tr ng-repeat="round in data.rounds track by $index">
-			<td>{{ $index +1 }}</td>
-			<td ng-repeat="player in data.players" >
+			<td class="align-right">{{ $index +1 }}</td>
+			<td ng-repeat="player in data.players" class="align-right">
 				<div ng-if="round.scores[player.id]" ng-class="{currentgame:round == data.currentRound && player==data.currentPlayer}" ng-click="setCurrentRoundAndPlayer(round,player)">
 					{{ round.scores[player.id].score }} ({{ round.scores[player.id].brains }}/{{ round.scores[player.id].bangs }})
 				</div>
