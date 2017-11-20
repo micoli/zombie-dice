@@ -68,9 +68,9 @@
 		<tr ng-repeat="round in data.rounds track by $index">
 			<td>{{ $index +1 }}</td>
 			<td ng-repeat="player in data.players" >
-				<span ng-if="round.scores[player.id]" ng-class="{currentgame:round == data.currentRound && player==data.currentPlayer}">
+				<div ng-if="round.scores[player.id]" ng-class="{currentgame:round == data.currentRound && player==data.currentPlayer}" ng-click="setCurrentRoundAndPlayer(round,player)">
 					{{ round.scores[player.id].score }} ({{ round.scores[player.id].brains }}/{{ round.scores[player.id].bangs }})
-				</span>
+				</div>
 			</td>
 		</tr>
 	</table>
