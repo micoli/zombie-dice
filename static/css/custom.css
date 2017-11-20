@@ -12,3 +12,43 @@
   background: url(bang.svg);
   background-size: 24px 24px;
 }
+.action-score{
+	text-align:center;
+}
+.action-score > .btn{
+	width:50px;
+	height:50px;	
+}
+
+.figure-score{
+	text-align:center;
+	font-weight:blod;
+	height:24px;
+}
+.imgs-score{
+	text-align:center;
+	height:24px;
+}
+.score{
+	text-align:center;
+	font-weight:bold;
+	font-size:30pt;
+}
+.small{
+  width: 18px;
+  height: 18px;
+  background-size: 18px 18px;
+	
+}
+.roundaction{
+	text-align:center;
+	vertical-align:middle;
+}
+.roundaction > .btn{
+	height:50px;	
+}
+
+.currentgame{
+	font-weight:bold;
+	text-color:red;
+}
