@@ -19,18 +19,112 @@
 		$scope.refresh();
 	})
 	.controller('gameCtrl',function($scope,$http,minirouter){
-		$scope.graphicalScores=[];
-		$scope.graphicalScoresOption= {
-		    legend : {
-		        position : 'se',  
-		        labelFormatter : function(label) {
-		            return 'y = ' + label;
-		        }, 
-		        backgroundColor : '#D2E8FF'
-		      },
-		      HtmlText : false
-		}
+		var drawGraph = function (data) {
+			var svg = d3.select(document.getElementById("results-render-0"));
+			svg.selectAll("*").remove();
+			var margin = {
+				top: 10, 
+				right: 50, 
+				bottom: 30, 
+				left: 10
+			};
+			var datas = [];
+			var allMaxValue=0;
+			var maxRounds = {};
+			_.each(data,function(serie){
+		        _.each(serie,function(v){
+		        	    datas.push({
+		        	    	    round : v.round,
+		        	    	    score : v.value
+		        	    	});
+		        	    maxRounds[v.key]=v.round;
+					if(v.value > allMaxValue){
+					    allMaxValue=v.value;
+					}
+				});
+			});
 
+			var width = +svg._nodes[0][0].clientWidth - margin.left - margin.right;
+			var height = +svg._nodes[0][0].clientHeight - margin.top - margin.bottom;
+			var labelPadding = 3;
+
+			var g = svg.append("g")
+			    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+			  var x = d3
+			  	  .scalePoint()
+			      .domain(_.range(0,data[0].length))
+			      .range([0,width]);
+
+			  var y = d3
+			      .scaleLinear()
+			      .domain([0, allMaxValue])
+			      .range([height, 0]);
+
+			  var z = d3.scaleCategory10();
+			  g.append("g")
+			      .attr("class", "axis axis--x")
+			      .attr("transform", "translate(0," + height + ")")
+			      .call(d3.axisBottom(x));
+
+			  var serie = g.selectAll(".serie")
+			      .data(data)
+			      .enter().append("g")
+			      .attr("class", "serie");
+
+			  serie.append("path")
+			      .attr("class", "line")
+			      .style("stroke", function(d) {
+			    	      return z(d[0].key); 
+			    	  })
+			      .attr("d", d3.line()
+			          .x(function(d) { return x(d.round); })
+			          .y(function(d) { return y(d.value); })
+			      );
+
+			  var label = serie
+			  	  .selectAll(".label")
+			      .data(function(d) { 
+			    	      return d; 
+			    	  })
+			      .enter().append("g")
+			      .attr("class", "label")
+			      .attr("transform", function(d, i) { 
+			    	  	  return "translate(" + x(d.round) + "," + y(d.value) + ")"; 
+			      });
+
+			  label.append("text")
+			      .attr("dy", ".35em")
+			      .text(function(d) { 
+			    	  	  return d.value; 
+			      })
+				  .filter(function(d, i) {
+					  return i === maxRounds[d.key]; 
+				   })
+				  .append("tspan")
+			      .attr("class", "label-key")
+			      .text(function(d) { 
+			    	  	return " " + d.key; 
+			    	  });
+
+			  label.append("rect", "text")
+			      .datum(function() { 
+			    	      return this.nextSibling.getBBox(); 
+			    	  })
+			      .attr("x", function(d) { 
+			    	      return d.x - labelPadding; 
+			    	  })
+			      .attr("y", function(d) { 
+			    	      return d.y - labelPadding; 
+			    	  })
+			      .attr("width", function(d) { 
+			    	      return d.width + 2 * labelPadding; 
+			    	  })
+			      .attr("height", function(d) { 
+			    	      return d.height + 2 * labelPadding; 
+			    	  });
+		};
+		
 		var names = [
 			'Adam','Adrian','Alan','Alexander','Andrew','Anthony','Austin','Benjamin','Blake','Boris','Brandon',
 			'Brian','Cameron','Carl','Charles','Christian','Christopher','Colin','Connor','Dan','David','Dominic','Dylan',
@@ -104,6 +198,7 @@
 				};
 			}
 			$scope.data.currentPlayerScore = $scope.data.currentRound.scores[$scope.data.currentPlayer.id];
+			window.setTimeout($scope.displayScore,200);
 		}
 		
 		$scope.addRound = function(){
@@ -135,24 +230,36 @@
 				roundData[type]=0;
 			}
 			roundData.score = (roundData.bangs>=3)?0:roundData.brains;
+			$scope.displayScore();
+		};
+		
+		$scope.displayScore = function(){
 			$scope.graphicalScores=[];
 			$scope.data.players = _.map($scope.data.players,function(v){
 				v.score = 0;
-				var currentScoreEvol=[];
+				var playerScores = [{
+			        key: v.name,
+			        round: 0,
+			        value: 0
+			    }];
 				_.each($scope.data.rounds,function(r,kround){
 					_.each(r.scores,function(s,k){
 						if(k == v.id){
 							v.score+=s.score;
-							currentScoreEvol.push([kround,s.score]);
+							playerScores.push({
+						        key: v.name,
+						        round: kround+1,
+						        value: v.score
+						    });
 						}
 					});
 				});
-				$scope.graphicalScores.push({label:v.name,data:currentScoreEvol});
+				$scope.graphicalScores.push(playerScores);
 				return v;
 			});
-			var container = document.getElementById("results-render-0");
-			Flotr.draw(container, $scope.graphicalScores, $scope.graphicalScoresOption);
+			drawGraph($scope.graphicalScores); 
 		};
+		
 		$scope.setCurrentRoundAndPlayer = function(round,player){
 			$scope.data.currentPlayer = player;	
 			$scope.data.currentRound	= round;
