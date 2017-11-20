@@ -61,3 +61,28 @@
 .align-right{
 	text-align: right;	
 }
+
+
+
+.graph  text {
+  font: 10px sans-serif;
+}
+.graph   .axis path,
+.graph  .axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+.graph  .line {
+  fill: none;
+  stroke-width: 1.5px;
+}
+.graph  .label {
+  text-anchor: middle;
+}
+.graph  .label rect {
+  fill: white;
+}
+.graph  .label-key {
+  font-weight: bold;
+}
