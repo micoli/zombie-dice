@@ -42,11 +42,17 @@
 		var getName = function(){
 			return _.sample(names); 
 		};
+
+		$scope.settings = function(b){
+			$scope.settingMode = b;
+		};
+		$scope.settings(false);
 		
 		var newPlayer = function(name){
 			return {
-				id:guid(),
-				name:name
+				id : guid(),
+				name : name,
+				score : 0
 			};
 		};
 		
@@ -59,18 +65,24 @@
 		    return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
 		};
 		
-		$scope.newGame=function(){
+		$scope.initGame = function(){
 			$scope.data={};
 			$scope.data.rounds=[]
 			$scope.data.players=[newPlayer(getName())];
 			$scope.nextPlayer();
 		};
+
+		$scope.newGame = function(){
+			$scope.data.rounds=[];
+			$scope.data.currentPlayer = $scope.data.players[$scope.data.players.indexOf($scope.data.currentPlayer)+1];
+			$scope.nextPlayer();
+		};
 		
-		$scope.nextPlayer=function(){
+		$scope.nextPlayer = function(){
 			if($scope.data.players.indexOf($scope.data.currentPlayer) == $scope.data.players.length-1 || $scope.data.rounds.length==0){
 				$scope.addRound();
 			}else{
-				$scope.data.currentPlayer=$scope.data.players[$scope.data.players.indexOf($scope.data.currentPlayer)+1]
+				$scope.data.currentPlayer = $scope.data.players[$scope.data.players.indexOf($scope.data.currentPlayer)+1];
 			}
 			if(!$scope.data.currentRound.scores.hasOwnProperty($scope.data.currentPlayer.id)){
 				$scope.data.currentRound.scores[$scope.data.currentPlayer.id]={
@@ -82,21 +94,21 @@
 			$scope.data.currentPlayerScore = $scope.data.currentRound.scores[$scope.data.currentPlayer.id]
 		}
 		
-		$scope.addRound=function(){
+		$scope.addRound = function(){
 			$scope.data.rounds.push({
 				id:guid(),
 				ts:Date.now(),
 				scores:{}
 			});
-			$scope.data.currentPlayer=$scope.data.players[0];
-			$scope.data.currentRound=$scope.data.rounds[$scope.data.rounds.length-1]
+			$scope.data.currentPlayer = $scope.data.players[0];
+			$scope.data.currentRound = $scope.data.rounds[$scope.data.rounds.length-1]
 		};
 		
 		$scope.addPlayer = function(){
 			$scope.data.players.push(newPlayer(getName()));	
 		};
 		
-		$scope.removePlayer=function(player){
+		$scope.removePlayer = function(player){
 			var wasCurrent = $scope.data.currentPlayer=player;
 			$scope.data.players = _.without($scope.data.players,player);
 			if(wasCurrent){
@@ -104,16 +116,27 @@
 			}
 		};
 		
-		$scope.score=function(type,n){
+		$scope.score = function(type,n){
 			var roundData = $scope.data.currentRound.scores[$scope.data.currentPlayer.id];
 			roundData[type]+=n;
 			if(roundData[type]<0){
 				roundData[type]=0;
 			}
 			roundData.score = (roundData.bangs>=3)?0:roundData.brains;
-			$scope.data.players = _.map($scope.data.players,function(v){ return v});
+			$scope.data.players = _.map($scope.data.players,function(v){
+				v.score = 0;
+				_.each($scope.data.rounds,function(r){
+					_.each(r.scores,function(s,k){
+						if(k == v.id){
+							v.score+=s.score;	
+						}
+					});
+					
+				});
+				return v;
+			});
 		};
 		
-		$scope.newGame();
+		$scope.initGame();
 	})
 })();
