@@ -16,7 +16,7 @@
 	<ul>
 		<li ng-repeat="player in data.players">
 			<input type="text" ng-model="player.name">
-			<button type="button" class="btn btn-default btn-sm" ng-click="removePlayer(player)">
+			<button type="button" class="btn btn-default btn-sm" ng-click="removePlayer(player.id)">
 				<span class="glyphicon glyphicon-trash"></span>
 			</button>
 		</li>
@@ -80,7 +80,7 @@
 		<tr ng-repeat="round in data.rounds track by $index">
 			<td class="align-right">{{ $index +1 }}</td>
 			<td ng-repeat="player in data.players" class="align-right">
-				<div ng-if="round.scores[player.id]" ng-class="{currentgame:round == data.currentRound && player==data.currentPlayer}" ng-click="setCurrentRoundAndPlayer(round,player)">
+				<div ng-if="round.scores[player.id]" ng-class="{currentgame:round.id == data.currentRound.id && player.id==data.currentPlayer.id}" ng-click="setCurrentRoundAndPlayer(round,player)">
 					{{ round.scores[player.id].score }} ({{ round.scores[player.id].brains }}/{{ round.scores[player.id].bangs }})
 				</div>
 			</td>

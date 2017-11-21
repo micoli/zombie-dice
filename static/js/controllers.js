@@ -35,11 +35,11 @@
 		        _.each(serie,function(v){
 		        	    datas.push({
 		        	    	    round : v.round,
-		        	    	    score : v.value
+		        	    	    score : v.totalScore
 		        	    	});
 		        	    maxRounds[v.key]=v.round;
-					if(v.value > allMaxValue){
-					    allMaxValue=v.value;
+					if(v.totalScore > allMaxValue){
+					    allMaxValue=v.totalScore;
 					}
 				});
 			});
@@ -79,7 +79,7 @@
 			    	  })
 			      .attr("d", d3.line()
 			          .x(function(d) { return x(d.round); })
-			          .y(function(d) { return y(d.value); })
+			          .y(function(d) { return y(d.totalScore); })
 			      );
 
 			  var label = serie
@@ -90,13 +90,14 @@
 			      .enter().append("g")
 			      .attr("class", "label")
 			      .attr("transform", function(d, i) { 
-			    	  	  return "translate(" + x(d.round) + "," + y(d.value) + ")"; 
+			    	  	  return "translate(" + x(d.round) + "," + y(d.totalScore) + ")"; 
 			      });
 
 			  label.append("text")
 			      .attr("dy", ".35em")
 			      .text(function(d) { 
-			    	  	  return d.value; 
+			    	  console.log(d);
+			    	  	  return d.totalScore+(d.data?' ('+d.data.brains+','+d.data.bangs+')':''); 
 			      })
 				  .filter(function(d, i) {
 					  return i === maxRounds[d.key]; 
@@ -215,11 +216,13 @@
 			$scope.data.players.push(newPlayer(getName()));	
 		};
 		
-		$scope.removePlayer = function(player){
-			var wasCurrent = $scope.data.currentPlayer=player;
-			$scope.data.players = _.without($scope.data.players,player);
+		$scope.removePlayer = function(playerId){
+			var wasCurrent = $scope.data.currentPlayer.id==playerId;
+			$scope.data.players = _.filter($scope.data.players,function(v){
+				return v.id!=playerId
+			});
 			if(wasCurrent){
-				$scope.data.currentPlayer = $scope.data.players;	
+				$scope.data.currentPlayer = $scope.data.players[0];	
 			}
 		};
 		
@@ -240,16 +243,17 @@
 				var playerScores = [{
 			        key: v.name,
 			        round: 0,
-			        value: 0
+			        totalScore: 0
 			    }];
 				_.each($scope.data.rounds,function(r,kround){
 					_.each(r.scores,function(s,k){
 						if(k == v.id){
 							v.score+=s.score;
 							playerScores.push({
-						        key: v.name,
-						        round: kround+1,
-						        value: v.score
+						        key : v.name,
+						        round : kround+1,
+						        totalScore : v.score,
+						        data : s
 						    });
 						}
 					});
@@ -266,5 +270,5 @@
 			$scope.data.currentPlayerScore = $scope.data.currentRound.scores[$scope.data.currentPlayer.id]
 		}
 		$scope.initGame();
-	})
+	});
 })();
