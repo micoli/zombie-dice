@@ -95,10 +95,22 @@
 
 			  label.append("text")
 			      .attr("dy", ".35em")
-			      .text(function(d) { 
-			    	  console.log(d);
-			    	  	  return d.totalScore+(d.data?' ('+d.data.brains+','+d.data.bangs+')':''); 
-			      })
+			      .each(function(d) {
+				        d3.select(this)
+				          .append("tspan")
+				          .attr("x",0)
+				      	  .attr("dy","1.2em")
+				      	  .text(function(d) { 
+				    	  	    return d.totalScore; 
+				          });
+				        d3.select(this)
+			              .append("tspan")
+				      	  .attr("x",0)
+				      	  .attr("dy","1.2em")
+				      	  .text(function(d) { 
+					    	  	  return (d.data?d.data.brains+'/'+d.data.bangs:''); 
+					      });
+				    })
 				  .filter(function(d, i) {
 					  return i === maxRounds[d.key]; 
 				   })

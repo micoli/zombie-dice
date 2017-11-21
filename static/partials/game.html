@@ -67,11 +67,11 @@
 			</div>
 		</div>
 	</div>
-	<br>
-	<table class="table table-striped" >
+	<br ng-init="tableMode=true">
+	<table class="table table-striped" ng-if="tableMode">
 		<tr>
 			<td>
-				&nbsp;
+				<span ng-click="tableMode=!tableMode">R</span>
 			</td>
 			<td ng-repeat="player in data.players" class="align-center">
 				<b>{{ player.name }} ({{ player.score }})</b>
@@ -82,6 +82,25 @@
 			<td ng-repeat="player in data.players" class="align-right">
 				<div ng-if="round.scores[player.id]" ng-class="{currentgame:round.id == data.currentRound.id && player.id==data.currentPlayer.id}" ng-click="setCurrentRoundAndPlayer(round,player)">
 					{{ round.scores[player.id].score }} ({{ round.scores[player.id].brains }}/{{ round.scores[player.id].bangs }})
+				</div>
+			</td>
+		</tr>
+	</table>
+	<table class="table table-striped" ng-if="!tableMode">
+		<tr>
+			<td>
+				<span ng-click="tableMode=!tableMode">R</span>
+			</td>
+			<td ng-repeat="round in data.rounds track by $index">
+				{{ $index +1 }}
+			</td>
+		</tr>
+		<tr ng-repeat="player in data.players">
+			<td class="align-right"><b>{{ player.name }} ({{ player.score }})</b></td>
+			<td ng-repeat="round in data.rounds track by $index"class="align-right">
+				<div ng-if="round.scores[player.id]" ng-class="{currentgame:round.id == data.currentRound.id && player.id==data.currentPlayer.id}" ng-click="setCurrentRoundAndPlayer(round,player)">
+					{{ round.scores[player.id].score }}<br>
+					{{ round.scores[player.id].brains }}/{{ round.scores[player.id].bangs }}
 				</div>
 			</td>
 		</tr>
