@@ -23,40 +23,40 @@ router.get('/', function(req, res, next) {
 });
 
 // Login
-router.post('/login', passport.authenticate('local', { 
-	successRedirect: '/rooms', 
-	failureRedirect: '/',
-	failureFlash: true
-}));
+router.post('/auth/login', passport.authenticate('local', { failWithError: true }),
+  function(req, res, next) {
+    // handle success
+	return res.json({success:true,message:'', id: req.user.id }); 
+  },
+  function(err, req, res, next) {
+    // handle error
+    	return res.json({success : false,message:err.message,error:err}); 
+  }
+);
 
 // Register via username and password
-router.post('/register', function(req, res, next) {
-
+router.post('/auth/register', function(req, res, next) {
 	var credentials = {'username': req.body.username, 'password': req.body.password };
 
 	if(credentials.username === '' || credentials.password === ''){
-		req.flash('error', 'Missing credentials');
-		req.flash('showRegisterForm', true);
-		res.redirect('/');
+		res.json({'success':false,'message': 'Missing credentials'});
 	}else{
-
 		// Check if the username already exists for non-social account
 		User.findOne({'username': new RegExp('^' + req.body.username + '$', 'i'), 'socialId': null}, function(err, user){
+			console.log(user,credentials);
 			if(err) throw err;
 			if(user){
-				req.flash('error', 'Username already exists.');
-				req.flash('showRegisterForm', true);
-				res.redirect('/');
+				res.json({'success':false,'message': 'Username already exists.'});
 			}else{
 				User.create(credentials, function(err, newUser){
 					if(err) throw err;
-					req.flash('success', 'Your account has been created. Please log in.');
-					res.redirect('/');
+					res.json({'success':true,'message': 'Your account has been created. Please log in.'});
 				});
 			}
 		});
 	}
 });
+
 
 // Social Authentication routes
 // 1. Login via Facebook
