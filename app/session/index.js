@@ -1,26 +1,34 @@
-var session 	= require('express-session');
-var MongoStore	= require('connect-mongo')(session);
+var expressSession 	= require('express-session');
+var cookieSession 	= require('cookie-session');
+//var MongoStore	= require('connect-mongo')(expressSession);
 var db 		    = require('../database');
 var config 		= require('../config');
 
-/**
- * Initialize Session
- * Uses MongoDB-based session store
- *
- */
 var init = function () {
+	//return cookieSession({ secret: config.sessionSecret, maxAge: 360*5 });
+	
 	if(process.env.NODE_ENV === 'production') {
-		return session({
+		return expressSession({
 			secret: config.sessionSecret,
-			resave: false,
-			saveUninitialized: false,
+			resave: true,
+			saveUninitialized: true,
 			unset: 'destroy',
-			store: new MongoStore({ mongooseConnection: db.Mongoose.connection })
+			cookie: {
+		        secure: false,
+		        maxage: 6000000
+		    },
+		    proxy: false
+			//store: new MongoStore({ mongooseConnection: db.Mongoose.connection })
 		});
 	} else {
-		return session({
+		return expressSession({
 			secret: config.sessionSecret,
-			resave: false,
+			resave: true,
+			cookie: {
+		        secure: true,
+		        maxage: 6000000
+		    },
+		    proxy: false,
 			unset: 'destroy',
 			saveUninitialized: true
 		});

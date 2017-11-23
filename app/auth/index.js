@@ -1,31 +1,21 @@
 'use strict';
 
-var config 		= require('../config');
-var passport 	= require('passport');
-var logger 		= require('../logger');
-var LocalStrategy 		= require('passport-local').Strategy;
-var FacebookStrategy  	= require('passport-facebook').Strategy;
-var TwitterStrategy  	= require('passport-twitter').Strategy;
+var config			= require('../config');
+var passport			= require('passport');
+var logger			= require('../logger');
+var LocalStrategy	= require('passport-local').Strategy;
+var FacebookStrategy	= require('passport-facebook').Strategy;
+var TwitterStrategy	= require('passport-twitter').Strategy;
+var User				= require('../models/user');
+var passportJWT		= require("passport-jwt");
+var ExtractJwt		= passportJWT.ExtractJwt;
+var Strategy			= passportJWT.Strategy;
 
-var User = require('../models/user');
-
-var passportJWT	= require("passport-jwt");
-var ExtractJwt	= passportJWT.ExtractJwt;
-var Strategy		= passportJWT.Strategy;
 var params = {
 	secretOrKey: config.sessionSecret,
 	jwtFromRequest : ExtractJwt.fromAuthHeaderAsBearerToken()
-	/*jwtFromRequest: ExtractJwt.versionOneCompatibility({
-		authScheme: 'Bearer'
-*/
 };
 
-
-/**
- * Encapsulates all code for authentication 
- * Either by using username and password, or by using social accounts
- *
- */
 var init = function(){
 
 	// Serialize and Deserialize user instances to and from the session.
@@ -64,6 +54,7 @@ var init = function(){
 	// In case of Facebook, tokenA is the access token, while tokenB is the refersh token.
 	// In case of Twitter, tokenA is the token, whilet tokenB is the tokenSecret.
 	var verifySocialAccount = function(tokenA, tokenB, data, done) {
+		console.log('verifySocialAccount',tokenA, tokenB, data);
 		User.findOrCreate(data, function (err, user) {
 	      	if (err) { return done(err); }
 			return done(err, user); 
@@ -84,7 +75,8 @@ var init = function(){
 			if (!user) {
 				return done(null, false, { message: 'Incorrect username or password.' });
 			}
-			console.log(user);
+			console.log(user,done);
+			
 			return done(null, user ? user : false);
 		});
 	});

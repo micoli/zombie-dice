@@ -1,25 +1,29 @@
 'use strict';
 
-var express	 	= require('express');
-var router 		= express.Router();
-var passport 	= require('passport');
+var express		= require('express');
+var router		= express.Router();
+var passport		= require('passport');
 var jwt			= require('jsonwebtoken');
 var config		= require('../config');
-
-var User = require('../models/user');
+var User			= require('../models/user');
 
 router.get('/', function(req, res, next) {
 	// If user is already logged in, then redirect to rooms page
 	if(req.isAuthenticated()){
-		res.redirect('/rooms');
-	}
-	else{
+		res.redirect('/index.html');
+	}else{
 		res.render('login', {
 			success: req.flash('success')[0],
 			errors: req.flash('error'), 
 			showRegisterForm: req.flash('showRegisterForm')[0]
 		});
 	}
+});
+
+router.get("/auth/check", passport.authenticate("jwt", {
+	session: false
+}), function(req, res) {  
+	res.json(req.user);
 });
 
 router.post('/auth/login', passport.authenticate('local', { failWithError: true }),
@@ -67,12 +71,11 @@ router.post('/auth/register', function(req, res, next) {
 	}
 });
 
-
 // Social Authentication routes
 // 1. Login via Facebook
 router.get('/auth/facebook', passport.authenticate('facebook'));
 router.get('/auth/facebook/callback', passport.authenticate('facebook', {
-	successRedirect: '/rooms',
+	successRedirect: '/',
 	failureRedirect: '/',
 	failureFlash: true
 }));
@@ -80,7 +83,7 @@ router.get('/auth/facebook/callback', passport.authenticate('facebook', {
 // 2. Login via Twitter
 router.get('/auth/twitter', passport.authenticate('twitter'));
 router.get('/auth/twitter/callback', passport.authenticate('twitter', {
-	successRedirect: '/rooms',
+	successRedirect: '/',
 	failureRedirect: '/',
 	failureFlash: true
 }));

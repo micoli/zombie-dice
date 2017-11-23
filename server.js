@@ -1,22 +1,18 @@
 'use strict';
 
-// Chat application dependencies
-var express 		= require('express');
-var app  		= express();
-var path 		= require('path');
-var bodyParser 	= require('body-parser');
-
-// Chat application components
-var routes 		= require('./app/routes');
+var express 	= require('express');
+var app			= express();
+var path			= require('path');
+var bodyParser	= require('body-parser');
+var routes		= require('./app/routes');
 var session		= require('./app/session');
-var passport    = require('./app/auth');
-var ioServer 	= require('./app/socket')(app);
-var logger 		= require('./app/logger');
-var config 		= require('./app/config');
+var passport		= require('./app/auth');
+var ioServer		= require('./app/socket')(app);
+var logger		= require('./app/logger');
+var config		= require('./app/config');
 
 var port = process.env.PORT || 3000;
 
-// View engine setup
 app.set('views', path.join(__dirname, 'app/views'));
 app.set('view engine', 'ejs');
 
@@ -27,13 +23,6 @@ app.use(express.static('public'));
 app.use(session)
 app.use(passport.initialize());
 app.use(passport.session())
-
-
-app.get("/auth/check", passport.authenticate("jwt", {
-	session: false
-}), function(req, res) {  
-	res.json(req.user);
-});
 
 app.use('/', routes);
 
