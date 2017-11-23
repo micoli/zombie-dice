@@ -31,24 +31,24 @@ var init = function(){
 
 	// Plug-in Local Strategy
 	passport.use(new LocalStrategy(
-	  function(username, password, done) {
-	    User.findOne({ username: new RegExp(username, 'i'), socialId: null }, function(err, user) {
-	      if (err) { return done(err); }
+	function(username, password, done) {
+		User.findOne({ username: new RegExp(username, 'i'), socialId: null }, function(err, user) {
+		if (err) { return done(err); }
 
-	      if (!user) {
-	        return done(null, false, { message: 'Incorrect username or password.' });
-	      }
+		if (!user) {
+			return done(null, false, { message: 'Incorrect username or password.' });
+		}
 
-	      user.validatePassword(password, function(err, isMatch) {
-	        	if (err) { return done(err); }
-	        	if (!isMatch){
-	        		return done(null, false, { message: 'Incorrect username or password.' });
-	        	}
-	        	return done(null, user);
-	      });
+		user.validatePassword(password, function(err, isMatch) {
+				if (err) { return done(err); }
+				if (!isMatch){
+					return done(null, false, { message: 'Incorrect username or password.' });
+				}
+				return done(null, user);
+		});
 
-	    });
-	  }
+		});
+	}
 	));
 
 	// In case of Facebook, tokenA is the access token, while tokenB is the refersh token.
@@ -56,34 +56,35 @@ var init = function(){
 	var verifySocialAccount = function(tokenA, tokenB, data, done) {
 		console.log('verifySocialAccount',tokenA, tokenB, data);
 		User.findOrCreate(data, function (err, user) {
-	      	if (err) { return done(err); }
-			return done(err, user); 
+			if (err) { return done(err); }
+			return done(err, user);
 		});
 	};
 
 	// Plug-in Facebook & Twitter Strategies
 	passport.use(new FacebookStrategy(config.facebook, verifySocialAccount));
 	passport.use(new TwitterStrategy(config.twitter, verifySocialAccount));
+
 	var strategy = new Strategy(params, function(payload, done) {
 		User.findOne({
 			_id: payload.id
 		}, function(err, user) {
-			if (err) { 
-				return done(err); 
+			if (err) {
+				return done(err);
 			}
 
 			if (!user) {
 				return done(null, false, { message: 'Incorrect username or password.' });
 			}
 			console.log(user,done);
-			
+
 			return done(null, user ? user : false);
 		});
 	});
 	passport.use(strategy);
 	return passport;
 }
-	
+
 module.exports = init();
 
 

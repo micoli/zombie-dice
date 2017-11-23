@@ -4,13 +4,14 @@
 	var dwnApp = angular.module('zombieDiceCounterApp', [
 		'ui.bootstrap',
 		'ui.router',
-		'LocalStorageModule'
+		'LocalStorageModule',
+		'btford.socket-io'
 	]);
 
 	dwnApp.config(['$stateProvider','$urlRouterProvider','$httpProvider',function($stateProvider,$urlRouterProvider,$httpProvider) {
-		
+
 		$urlRouterProvider.otherwise("/game");
-		
+
 		$httpProvider.interceptors.push('authentication.authInterceptor');
 
 		$stateProvider
