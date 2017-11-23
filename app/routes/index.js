@@ -3,11 +3,11 @@
 var express	 	= require('express');
 var router 		= express.Router();
 var passport 	= require('passport');
+var jwt			= require('jsonwebtoken');
+var config		= require('../config');
 
 var User = require('../models/user');
-var Room = require('../models/room');
 
-// Home page
 router.get('/', function(req, res, next) {
 	// If user is already logged in, then redirect to rooms page
 	if(req.isAuthenticated()){
@@ -22,16 +22,26 @@ router.get('/', function(req, res, next) {
 	}
 });
 
-// Login
 router.post('/auth/login', passport.authenticate('local', { failWithError: true }),
-  function(req, res, next) {
-    // handle success
-	return res.json({success:true,message:'', id: req.user.id }); 
-  },
-  function(err, req, res, next) {
-    // handle error
-    	return res.json({success : false,message:err.message,error:err}); 
-  }
+	function(req, res, next) {
+		console.log('ici');
+		return res.json({
+			success : true,
+			message : '', 
+			name : req.user.username,
+			token : jwt.sign({
+				id : req.user.id,
+				name : req.user.username
+			}, config.sessionSecret)
+		}); 
+	},
+	function(err, req, res, next) {
+		return res.json({
+			success : false,
+			message : err.message,
+			error : err
+		}); 
+	}
 );
 
 // Register via username and password
@@ -62,17 +72,17 @@ router.post('/auth/register', function(req, res, next) {
 // 1. Login via Facebook
 router.get('/auth/facebook', passport.authenticate('facebook'));
 router.get('/auth/facebook/callback', passport.authenticate('facebook', {
-		successRedirect: '/rooms',
-		failureRedirect: '/',
-		failureFlash: true
+	successRedirect: '/rooms',
+	failureRedirect: '/',
+	failureFlash: true
 }));
 
 // 2. Login via Twitter
 router.get('/auth/twitter', passport.authenticate('twitter'));
 router.get('/auth/twitter/callback', passport.authenticate('twitter', {
-		successRedirect: '/rooms',
-		failureRedirect: '/',
-		failureFlash: true
+	successRedirect: '/rooms',
+	failureRedirect: '/',
+	failureFlash: true
 }));
 
 // Rooms
@@ -95,17 +105,5 @@ router.get('/chat/:id', [User.isAuthenticated, function(req, res, next) {
 	});
 	
 }]);
-
-// Logout
-router.get('/logout', function(req, res, next) {
-	// remove the req.user property and clear the login session
-	req.logout();
-
-	// destroy session data
-	req.session = null;
-
-	// redirect to homepage
-	res.redirect('/');
-});
 
 module.exports = router;

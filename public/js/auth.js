@@ -13,9 +13,10 @@
 	})
 	.factory("authentication.authService", [ "$q", "$http", "$timeout", "$rootScope", "$location", "$state", "localStorageService", function($q, $http, $timeout, $rootScope, $location, $state, localStorageService) {
 		var _rightNotConnected, _currentIdentity, authService, _authenticated = 0;
-		
-		authService = {};
-		authService.urlTags = {};
+
+		authService = {
+			userToken : '' 
+		};
 		
 		authService.isIdentityResolved = function() {
 			return angular.isDefined(_currentIdentity);
@@ -44,17 +45,25 @@
 			_currentIdentity = null;
 			_authenticated = null;
 			authService.setToken(null);
-			localStorageService.remove("sessionId");
+			localStorageService.remove("token");
 		};
 
-		authService.setTokenId = function(t) {
-			localStorageService.set("sessionId", t);
+		authService.initTokenId = function(token) {
+			authService.userToken = token;
+			$http.defaults.headers.common["Authorization"] = "Bearer " + token
+		}
+		
+		authService.setTokenId = function(token) {
+			authService.initTokenId(token);
+			localStorageService.set("token", token);
 		};
+		
 		authService.getTokenId = function() {
-			return localStorageService.get("sessionId");
+			return localStorageService.get("token");
 		};
+		
 		authService.clearTokenId = function() {
-			return localStorageService.remove("sessionId");
+			return localStorageService.remove("token");
 		};
 		
 		authService.checkAndLoadIdentity = function() {
@@ -63,24 +72,27 @@
 				deferred.resolve(_currentIdentity);
 				return deferred.promise;
 			}
-			
 			_currentIdentity = null;
 			_authenticated = false;
-			if (authService.userToken){
+			var token = authService.getTokenId();
+			if (token){
+					authService.initTokenId(token);
 					$http({
-					method: "GET",
-					url: "auth/check"
+					method : "GET",
+					url : "auth/check"
 				}).success(function(res) {
-					authService.setToken({id : res.data.id});
-					delete $http.defaults.headers.common["X-Access-PreviousToken"];
-					deferred.resolve(user);
-				}).error(function() {
+					authService.setIdentity(token,{
+						name : res.username,
+						config : {
+							rights : []
+						}
+					})
 					deferred.resolve(_currentIdentity);
+				}).error(function() {
+					deferred.reject(null);
 				})
 			} else {
-				_currentIdentity = null;
-				_authenticated = false;
-				deferred.resolve(_currentIdentity);
+				deferred.reject();
 			}
 			return deferred.promise;
 		};
@@ -100,7 +112,12 @@
 				var deferred = $q.defer();
 				try {
 					if (res.data.success) {
-						authService.setToken({id:res.data.id});
+						authService.setIdentity(res.data.token,{
+							name : res.data.name,
+							config : {
+								rights : []
+							}
+						});
 						deferred.resolve(res.data.id)
 					} else {
 						deferred.reject(res.data.message);
@@ -117,8 +134,9 @@
 		};
 		
 		authService.logout = function() {
-			authService.logoutLight();
-			authService.clearLocalStorageLight();
+			_currentIdentity = null;
+			_authenticated = false;
+			authService.clearTokenId();
 		};
 		
 		authService.isSessionAuthenticated = function() {
@@ -128,22 +146,17 @@
 			});
 		};
 
-		authService.setToken = function(token) {
-			_currentIdentity = token;
+		authService.setIdentity = function(token,identity) {
+			_currentIdentity = identity;
 			_authenticated = true;
-			authService.setTokenId(token.id);	
-			authService.userToken = token.id;
-			$http.defaults.headers.common["X-Access-Token"] = "Bearer" + authService.userToken;
-			if (authService.previousUserToken){
-				$http.defaults.headers.common["X-Access-PreviousToken"] = "Bearer" + authService.previousUserToken;
-			}
-			authService.setTokenId(token);
+			authService.setTokenId(token);	
 		};
 		return authService;
 	}])
 	.factory("authentication.authorization", [ "$rootScope", "$state", "authentication.authService", function($rootScope, $state, authService) {
 		return {
 			authorize : function() {
+				console.log('authorize 1');
 				return authService.checkAndLoadIdentity().then(function() {
 					var isAuthenticated = authService.isAuthenticated();
 					$rootScope.toState.data = $rootScope.toState.data || {};

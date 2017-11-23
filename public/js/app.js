@@ -8,33 +8,40 @@
 	]);
 
 	dwnApp.config(['$stateProvider','$urlRouterProvider','$httpProvider',function($stateProvider,$urlRouterProvider,$httpProvider) {
+		
 		$urlRouterProvider.otherwise("/game");
+		
 		$httpProvider.interceptors.push('authentication.authInterceptor');
 
 		$stateProvider
 		.state('dash', {
 			url			: '/',
-			templateUrl	: 'partials/home.html'
+			templateUrl	: 'partials/home.html',
+			resolve : {
+				authorize: ['authentication.authorization', function (authorization) {
+					return authorization.authorize();
+				}]
+			}
 		})
 		.state('game', {
 			url			: "/game",
 			templateUrl	: 'partials/game.html',
 			controller	: 'gameCtrl',
-			resolve: {
+			resolve : {
 				authorize: ['authentication.authorization', function (authorization) {
 					return authorization.authorize();
 				}]
 			}
 		})
 		.state('signin', {
-				url: '/connexion',
-				templateUrl: "partials/signin.html",
-				controller: 'authentication.signinController',
-				resolve: {
-					authorize: ['authentication.authorization', function (authorization) {
-						return authorization.redirectifAuthenticated();
-					}]
-				}
+			url: '/connexion',
+			templateUrl: "partials/signin.html",
+			controller: 'authentication.signinController',
+			resolve : {
+				authorize : ['authentication.authorization', function (authorization) {
+					return authorization.redirectifAuthenticated();
+				}]
+			}
 		})
 		.state('accessdenied', {
 			url: '/accessdenied',

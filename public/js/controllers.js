@@ -6,6 +6,13 @@
 		var app={};
 		return app;
 	})
+	
+	.controller('navCtrl',['$scope','authentication.authService',function($scope,authService){
+		$scope.logout = function(){
+			console.log('logout');
+			authService.logout()	
+		}
+	}])
 	.controller('gamesListCtrl',function($scope,$uibModal,$http,minirouter){
 		$scope.refresh = function(){
 			/*$http.get('/get', {})

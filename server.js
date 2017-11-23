@@ -5,7 +5,6 @@ var express 		= require('express');
 var app  		= express();
 var path 		= require('path');
 var bodyParser 	= require('body-parser');
-var flash 		= require('connect-flash');
 
 // Chat application components
 var routes 		= require('./app/routes');
@@ -13,8 +12,8 @@ var session		= require('./app/session');
 var passport    = require('./app/auth');
 var ioServer 	= require('./app/socket')(app);
 var logger 		= require('./app/logger');
+var config 		= require('./app/config');
 
-// Set the port number
 var port = process.env.PORT || 3000;
 
 // View engine setup
@@ -26,10 +25,12 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static('public'));
 
-app.use(session);
-app.use(passport.initialize());
-app.use(passport.session());
-app.use(flash());
+
+app.use(session().initialize());
+
+app.get("/auth/check", session().authenticate(), function(req, res) {  
+	res.json(req.user);
+});
 
 app.use('/', routes);
 
