@@ -8,6 +8,14 @@
 			<input type="checkbox" ng-model="data.rememberCredentials" ng-init="data.rememberCredentials=true" class="ng-pristine ng-untouched ng-valid ng-not-empty">Rester connecté
 		</label>
 		<div class="clearboth"></div>
+          <a href="/auth/facebook">
+            <img class="loginBtn" src="css/facebookLoginBtn.png" alt="Sign-In with Facebook">
+          </a>
+
+          <a href="/auth/twitter">
+            <img class="loginBtn" src="css/twitterLoginBtn.png" alt="Sign-In with Twitter">
+          </a>
+		
 		<span ng-click="data.mode='register'">S'inscrire</span>
 	</form>
 	<form ng-show="data.mode=='register'" class="commun_bs_connexion_form ng-pristine ng-valid validForm ng-valid-email" role="form" ng-submit="register(credentials)" novalidate="" autocomplete="off">

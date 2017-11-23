@@ -3,12 +3,23 @@
 var config 		= require('../config');
 var passport 	= require('passport');
 var logger 		= require('../logger');
-
 var LocalStrategy 		= require('passport-local').Strategy;
 var FacebookStrategy  	= require('passport-facebook').Strategy;
 var TwitterStrategy  	= require('passport-twitter').Strategy;
 
 var User = require('../models/user');
+
+var passportJWT	= require("passport-jwt");
+var ExtractJwt	= passportJWT.ExtractJwt;
+var Strategy		= passportJWT.Strategy;
+var params = {
+	secretOrKey: config.sessionSecret,
+	jwtFromRequest : ExtractJwt.fromAuthHeaderAsBearerToken()
+	/*jwtFromRequest: ExtractJwt.versionOneCompatibility({
+		authScheme: 'Bearer'
+*/
+};
+
 
 /**
  * Encapsulates all code for authentication 
@@ -62,8 +73,29 @@ var init = function(){
 	// Plug-in Facebook & Twitter Strategies
 	passport.use(new FacebookStrategy(config.facebook, verifySocialAccount));
 	passport.use(new TwitterStrategy(config.twitter, verifySocialAccount));
+	var strategy = new Strategy(params, function(payload, done) {
+		User.findOne({
+			_id: payload.id
+		}, function(err, user) {
+			if (err) { 
+				return done(err); 
+			}
 
+			if (!user) {
+				return done(null, false, { message: 'Incorrect username or password.' });
+			}
+			console.log(user);
+			return done(null, user ? user : false);
+		});
+	});
+	passport.use(strategy);
 	return passport;
 }
 	
 module.exports = init();
+
+
+
+
+
+

@@ -7,10 +7,11 @@
 		return app;
 	})
 	
-	.controller('navCtrl',['$scope','authentication.authService',function($scope,authService){
+	.controller('navCtrl',['$scope','$state','authentication.authService',function($scope,$state,authService){
 		$scope.logout = function(){
 			console.log('logout');
 			authService.logout()	
+			$state.go("dash");
 		}
 	}])
 	.controller('gamesListCtrl',function($scope,$uibModal,$http,minirouter){

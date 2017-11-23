@@ -24,11 +24,14 @@ app.set('view engine', 'ejs');
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static('public'));
+app.use(session)
+app.use(passport.initialize());
+app.use(passport.session())
 
 
-app.use(session().initialize());
-
-app.get("/auth/check", session().authenticate(), function(req, res) {  
+app.get("/auth/check", passport.authenticate("jwt", {
+	session: false
+}), function(req, res) {  
 	res.json(req.user);
 });
 
