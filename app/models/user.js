@@ -4,7 +4,7 @@ var userModel = require('../database').models.user;
 
 var create = function (data, callback){
 	var newUser = new userModel(data);
-	console.log('newUser',newUser,data,callback);
+	//console.log('newUser',newUser,data,callback);
 	newUser.save(callback);
 };
 
@@ -15,7 +15,6 @@ var findOne = function (data, callback){
 var findById = function (id, callback){
 	userModel.findById(id, callback);
 }
-
 
 /**
  * Find a user, and create one if doesn't exist already.

@@ -5,7 +5,8 @@
 		'ui.bootstrap',
 		'ui.router',
 		'LocalStorageModule',
-		'btford.socket-io'
+		'btford.socket-io',
+		'angular-jwt'
 	]);
 
 	dwnApp.config(['$stateProvider','$urlRouterProvider','$httpProvider',function($stateProvider,$urlRouterProvider,$httpProvider) {
@@ -35,7 +36,7 @@
 			}
 		})
 		.state('signin', {
-			url: '/connexion',
+			url: '/auth',
 			templateUrl: "partials/signin.html",
 			controller: 'authentication.signinController',
 			resolve : {
@@ -43,6 +44,11 @@
 					return authorization.redirectifAuthenticated();
 				}]
 			}
+		})
+		.state('authcallback', {
+			url: '/auth/callback/:token',
+			templateUrl: "partials/blank.html",
+			controller: 'authentication.authCallbackController'
 		})
 		.state('accessdenied', {
 			url: '/accessdenied',

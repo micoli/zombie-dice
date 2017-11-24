@@ -1,12 +1,21 @@
-var expressSession 	= require('express-session');
-var cookieSession 	= require('cookie-session');
-//var MongoStore	= require('connect-mongo')(expressSession);
-var db 		    = require('../database');
-var config 		= require('../config');
+var expressSession	= require('express-session');
+var cookieSession	= require('cookie-session');
+//var MongoStore		= require('connect-mongo')(expressSession);
+var db				= require('../database');
+var config			= require('../config');
 
 var init = function () {
-	//return cookieSession({ secret: config.sessionSecret, maxAge: 360*5 });
-	return expressSession({ secret: config.sessionSecret , key: 'sid', cookie: { secure: true }})
+	//return cookieSession({ secret: config.sessionSecret});
+	return expressSession({ 
+		secret: config.sessionSecret , 
+		key: 'sid',
+		resave: true,
+		saveUninitialized: true, 
+		maxAge: 360*5 ,
+		cookie: {
+			secure: false 
+		}
+	})
 
 	if(process.env.NODE_ENV === 'production') {
 		return expressSession({

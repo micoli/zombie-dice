@@ -11,7 +11,7 @@
 		notAuthorized: "auth-not-authorized",
 		authorized: "auth-authorized"
 	})
-	.factory("authentication.authService", [ "$q", "$http", "$timeout", "$rootScope", "$location", "$state", "localStorageService", function($q, $http, $timeout, $rootScope, $location, $state, localStorageService) {
+	.factory("authentication.authService", [ "$q", "$http", "$timeout", "$rootScope", "$location", "$state", "localStorageService", "jwtHelper",function($q, $http, $timeout, $rootScope, $location, $state, localStorageService,jwtHelper) {
 		var _rightNotConnected, _currentIdentity, authService, _authenticated = 0;
 
 		authService = {
@@ -23,7 +23,7 @@
 		};
 		
 		authService.isAuthenticated = function() {
-			console.log('_authenticated',_authenticated);
+			//console.log('_authenticated',_authenticated);
 			return _authenticated;
 		};
 		
@@ -81,12 +81,7 @@
 					method : "GET",
 					url : "auth/check"
 				}).success(function(res) {
-					authService.setIdentity(token,{
-						name : res.username,
-						config : {
-							rights : []
-						}
-					})
+					authService.setIdentity(token)
 					deferred.resolve(_currentIdentity);
 				}).error(function() {
 					deferred.reject(null);
@@ -112,12 +107,7 @@
 				var deferred = $q.defer();
 				try {
 					if (res.data.success) {
-						authService.setIdentity(res.data.token,{
-							name : res.data.name,
-							config : {
-								rights : []
-							}
-						});
+						authService.setIdentity(res.data.token);
 						deferred.resolve(res.data.id)
 					} else {
 						deferred.reject(res.data.message);
@@ -146,8 +136,9 @@
 			});
 		};
 
-		authService.setIdentity = function(token,identity) {
-			_currentIdentity = identity;
+		authService.setIdentity = function(token) {
+			_currentIdentity = jwtHelper.decodeToken(token);
+			//console.log('_currentIdentity',_currentIdentity);
 			_authenticated = true;
 			authService.setTokenId(token);	
 		};
@@ -156,7 +147,6 @@
 	.factory("authentication.authorization", [ "$rootScope", "$state", "authentication.authService", function($rootScope, $state, authService) {
 		return {
 			authorize : function() {
-				console.log('authorize 1');
 				return authService.checkAndLoadIdentity().then(function() {
 					var isAuthenticated = authService.isAuthenticated();
 					$rootScope.toState.data = $rootScope.toState.data || {};
@@ -204,6 +194,12 @@
 	.controller("authentication.accessdeniedController", [ "$scope", "$stateParams", function($scope, $stateParams) {
 		if (angular.isDefined($stateParams.message)){
 			$scope.message = $stateParams.message;
+		}
+	}])
+	.controller("authentication.authCallbackController", [ "$scope", "$stateParams","$state","authentication.authService", function($scope, $stateParams,$state,authService) {
+		if (angular.isDefined($stateParams.token)){
+			authService.setIdentity($stateParams.token);
+			$state.go("dash");
 		}
 	}])
 	.controller("authentication.signinController", [ "$rootScope", "$scope", "$state", "$http","localStorageService", "authentication.authService", "$location", function($rootScope, $scope, $state, $http, localStorageService, authService, $location) {

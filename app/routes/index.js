@@ -6,7 +6,7 @@ var passport		= require('passport');
 var jwt			= require('jsonwebtoken');
 var config		= require('../config');
 var User			= require('../models/user');
-
+var common		= require('../common');
 router.get('/', function(req, res, next) {
 	// If user is already logged in, then redirect to rooms page
 	if(req.isAuthenticated()){
@@ -28,19 +28,15 @@ router.get("/auth/check", passport.authenticate("jwt", {
 
 router.post('/auth/login', passport.authenticate('local', { failWithError: true }),
 	function(req, res, next) {
-		console.log('ici');
 		return res.json({
 			success : true,
 			message : '', 
 			name : req.user.username,
-			token : jwt.sign({
-				id : req.user.id,
-				name : req.user.username
-			}, config.sessionSecret)
+			token : common.createJWTToken(user)
 		}); 
 	},
 	function(err, req, res, next) {
-		return res.json({
+			return res.json({
 			success : false,
 			message : err.message,
 			error : err
@@ -57,7 +53,6 @@ router.post('/auth/register', function(req, res, next) {
 	}else{
 		// Check if the username already exists for non-social account
 		User.findOne({'username': new RegExp('^' + req.body.username + '$', 'i'), 'socialId': null}, function(err, user){
-			console.log(user,credentials);
 			if(err) throw err;
 			if(user){
 				res.json({'success':false,'message': 'Username already exists.'});
@@ -74,19 +69,31 @@ router.post('/auth/register', function(req, res, next) {
 // Social Authentication routes
 // 1. Login via Facebook
 router.get('/auth/facebook', passport.authenticate('facebook'));
-router.get('/auth/facebook/callback', passport.authenticate('facebook', {
-	successRedirect: '/',
-	failureRedirect: '/',
-	failureFlash: true
-}));
+router.get('/auth/facebook/callback', function(req, res, next) {
+	passport.authenticate('facebook', function(err, user, info) {
+		if (err) { 
+			return next(err); 
+		}
+		if (!user) { 
+			return res.redirect('/#/connexion'); 
+		}
+		return res.redirect('/#/auth/callback/' + common.createJWTToken(user));
+	})(req, res, next);
+});
 
 // 2. Login via Twitter
 router.get('/auth/twitter', passport.authenticate('twitter'));
-router.get('/auth/twitter/callback', passport.authenticate('twitter', {
-	successRedirect: '/',
-	failureRedirect: '/',
-	failureFlash: true
-}));
+router.get('/auth/twitter/callback', function(req, res, next) {
+	passport.authenticate('twitter', function(err, user, info) {
+		if (err) { 
+			return next(err); 
+		}
+		if (!user) { 
+			return res.redirect('/#/connexion'); 
+		}
+		return res.redirect('/#/auth/callback/' + common.createJWTToken(user));
+	})(req, res, next);
+});
 
 // Rooms
 router.get('/rooms', [User.isAuthenticated, function(req, res, next) {
