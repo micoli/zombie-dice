@@ -7,7 +7,13 @@
 		return app;
 	})
 	.factory('mySocket', function (socketFactory) {
-		return socketFactory();
+		var myIoSocket = io.connect('/chatroom');
+
+		var mySocket = socketFactory({
+			ioSocket : myIoSocket
+		});
+		mySocket.forward('someEvent');
+		return mySocket;
 	})
 	.controller('navCtrl',['$scope','$state','authentication.authService',function($scope,$state,authService){
 		$scope.logout = function(){
@@ -29,7 +35,9 @@
 		$scope.refresh();
 	})
 	.controller('gameCtrl',function($scope,$http,minirouter,mySocket){
-		mySocket.forward('someEvent', $scope);
+		mySocket.emit('join',{a:1},function(){
+			console.log('cb join');
+		})
 		$scope.$on('socket:someEvent', function (ev, data) {
 			console.log(ev,data);
 		});

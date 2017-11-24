@@ -1,6 +1,6 @@
 'use strict';
 
-var express 	= require('express');
+var express 		= require('express');
 var app			= express();
 var path			= require('path');
 var bodyParser	= require('body-parser');
@@ -22,7 +22,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static('public'));
 app.use(session)
 app.use(passport.initialize());
-app.use(passport.session())
+app.use(passport.session());
 
 app.use('/', routes);
 
