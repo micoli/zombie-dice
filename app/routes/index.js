@@ -32,7 +32,7 @@ router.post('/auth/login', passport.authenticate('local', { failWithError: true 
 			success : true,
 			message : '', 
 			name : req.user.username,
-			token : common.createJWTToken(user)
+			token : common.createJWTToken(req.user)
 		}); 
 	},
 	function(err, req, res, next) {

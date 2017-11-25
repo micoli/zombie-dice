@@ -16,6 +16,12 @@
 		return mySocket;
 	})
 	.controller('navCtrl',['$scope','$state','authentication.authService',function($scope,$state,authService){
+		$scope.$on('authentication:login',function(evt,args){
+			$scope.user = args;
+		});
+		$scope.$on('authentication:logout',function(evt,args){
+			$scope.user = null;
+		});
 		$scope.logout = function(){
 			console.log('logout');
 			authService.logout()
@@ -24,12 +30,6 @@
 	}])
 	.controller('gamesListCtrl',function($scope,$uibModal,$http,minirouter){
 		$scope.refresh = function(){
-			/*$http.get('/get', {})
-			.then(
-			function(response){
-				$scope.data = response.data;
-				console.log($scope.data);
-			});*/
 			$scope.games = [];
 		}
 		$scope.refresh();

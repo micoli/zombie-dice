@@ -26,7 +26,7 @@ var ioEvents = function(io) {
 			//		return;
 			//}
 			console.log(33);
-			socket.broadcast.to(room.id).emit('someEvent', 123);
+			socket.broadcast.to(123).emit('someEvent', 123);
 		});
 	});
 }

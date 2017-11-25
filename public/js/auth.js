@@ -125,20 +125,21 @@
 		
 		authService.logout = function() {
 			_currentIdentity = null;
+			$rootScope.$broadcast('authentication:logout', _currentIdentity);
 			_authenticated = false;
 			authService.clearTokenId();
 		};
 		
 		authService.isSessionAuthenticated = function() {
 			return $http({
-				method: "POST",
-				url: "auth/check"
+				method : "POST",
+				url : "auth/check"
 			});
 		};
 
 		authService.setIdentity = function(token) {
 			_currentIdentity = jwtHelper.decodeToken(token);
-			//console.log('_currentIdentity',_currentIdentity);
+			$rootScope.$broadcast('authentication:login', _currentIdentity);
 			_authenticated = true;
 			authService.setTokenId(token);	
 		};
