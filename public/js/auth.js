@@ -101,8 +101,12 @@
 			_authenticated = false;
 			return $http({
 				method: "POST",
-				url: "api/auth/login",
-				data: credentials
+				url: "api/users/login",
+				data: {
+					email : credentials.username,
+					password : credentials.password,
+				}
+
 			}).then(function(res) {
 				var deferred = $q.defer();
 				try {
@@ -261,8 +265,12 @@
 				credentials.username = credentials.username.toLowerCase();
 				return $http({
 					method: "POST",
-					url: "auth/register",
-					data: credentials
+					url: "/api/users",
+					data: {
+						name : credentials.username,
+						email : credentials.username,
+						password : credentials.password,
+					}
 				}).then(function(res) {
 					if(res.data.success){
 						$scope.data.mode='login';

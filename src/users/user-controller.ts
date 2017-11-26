@@ -74,24 +74,19 @@ export default class UserController {
 				password : 'external'
 			};
 
-			let user: IUser = await this.database.userModel.findOne({ email: userStruct.email , source:'twitter'});
+			let user: IUser = await this.database.userModel.findOne({
+				email : userStruct.email ,
+				source :'twitter'
+			});
 
 			if (!user) {
 				user = await this.database.userModel.create(userStruct);
 			}
 
-			//Just store a part of the twitter profile information in the session as an example. You could do something
-			//more useful here - like loading or setting up an account (social signup).
-			/*
-			request.cookieAuth.set({
-				twitterId: profile.id,
-				username: profile.username,
-				displayName: profile.displayName
-			});
-			*/
 			console.log('- profile' , profile);
 			console.log('- user' , user);
 			console.log('- token' , this.generateToken(user));
+
 			return reply.redirect('/#/auth/callback/' + this.generateToken(user));
 
 			//return reply({ token: this.generateToken(user)}).code(201);

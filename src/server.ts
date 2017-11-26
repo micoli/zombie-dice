@@ -6,6 +6,7 @@ import * as Tasks from "./tasks";
 import * as Users from "./users";
 import { IDatabase } from "./database";
 import * as Path from 'Path';
+import * as socket from './socket';
 
 export function init(configs: IServerConfigurations, database: IDatabase): Promise<Hapi.Server> {
 
@@ -21,6 +22,13 @@ export function init(configs: IServerConfigurations, database: IDatabase): Promi
 			}
 		});
 
+		/*var io = require('socket.io')(server.listener);
+		io.on('connection', function (socket) {
+			socket.emit('Oh hii!');
+			socket.on('burp', function () {
+				socket.emit('Excuse you!');
+			});
+		});*/
 		if (configs.routePrefix) {
 			server.realm.modifiers.route.prefix = configs.routePrefix;
 		}
@@ -51,7 +59,7 @@ export function init(configs: IServerConfigurations, database: IDatabase): Promi
 			resolve(server);
 		}).then(() => {
 			server.register([require('inert')], (err) => {
-				let path = process.cwd() + '/../public/';
+				let path = process.cwd() + '/public/';
 				console.log('Static serving @ ' + path);
 				server.route({
 					method: 'GET',
@@ -63,6 +71,9 @@ export function init(configs: IServerConfigurations, database: IDatabase): Promi
 					}
 				});
 			});
+			resolve(server);
+		}).then(() => {
+			socket.register(server , {} );
 			resolve(server);
 		});
 
