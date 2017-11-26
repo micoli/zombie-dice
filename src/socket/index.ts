@@ -1,6 +1,6 @@
 'use strict';
 
-import {config} from '../config'
+import {config} from '../../../src/config'
 var redis 	= require('redis').createClient;
 var adapter = require('socket.io-redis');
 

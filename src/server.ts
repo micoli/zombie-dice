@@ -1,67 +1,70 @@
-'use strict';
-var express 		= require('express');
-var app			= express();
-var path			= require('path');
-var bodyParser	= require('body-parser');
-var routes		= require('./routes');
-var session		= require('./session');
-var passport		= require('./auth');
-var ioServer		= require('./socket')(app);
-var logger		= require('./logger');
-var config		= require('./config');
+import * as Hapi from "hapi";
+import * as Boom from "boom";
+import { IPlugin } from "./plugins/interfaces";
+import { IServerConfigurations } from "./configurations";
+import * as Tasks from "./tasks";
+import * as Users from "./users";
+import { IDatabase } from "./database";
+import * as Path from 'Path';
 
-var port = process.env.PORT || 3000;
+export function init(configs: IServerConfigurations, database: IDatabase): Promise<Hapi.Server> {
 
-app.set('views', path.join(__dirname, 'app/views'));
-app.set('view engine', 'ejs');
+	return new Promise<Hapi.Server>(resolve => {
 
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(express.static(__dirname+'/../../public'));
-app.use(session)
-app.use(passport.initialize());
-app.use(passport.session());
-app.use('/', routes);
+		const port = process.env.PORT || configs.port;
+		const server = new Hapi.Server();
 
-app.use(function(req, res, next) {
-	res.status(404).sendFile(process.cwd() + '/app/views/404.htm');
-});
+		server.connection({
+			port: port,
+			routes: {
+				cors: true
+			}
+		});
 
-ioServer.listen(port);
-/*
+		if (configs.routePrefix) {
+			server.realm.modifiers.route.prefix = configs.routePrefix;
+		}
 
-import * as express from 'express'
-let app	= express()
-import * as path	 from 'path'
-import * as bodyParser from 'body-parser'
-//import * as routes from './routes'
-var passport		= require('./auth');
-var routes = require('./routes');
-import * as session from './session'
-import * as auth	  from './auth'
+		const plugins: Array<string> = configs.plugins;
+		const pluginOptions = {
+			database: database,
+			serverConfigs: configs
+		};
 
-let ioServer	 = require  ('./socket') (app)
+		let pluginPromises = [];
 
-let port = process.env.PORT || 3000;
+		plugins.forEach((pluginName: string) => {
+			var plugin: IPlugin = (require("./plugins/" + pluginName)).default();
+			console.log(`Register Plugin ${plugin.info().name} v${plugin.info().version}`);
+			pluginPromises.push(plugin.register(server, pluginOptions));
+		});
 
-app.set('views', path.join(__dirname, 'app/views'));
-app.set('view engine', 'ejs');
+		Promise.all(pluginPromises).then(() => {
+			console.log('All plugins registered successfully.');
 
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(express.static(__dirname+'/../../public'));
-app.use(session)
-//auth.init(app)
-app.use(passport.initialize());
-app.use(passport.session());
+			console.log('Register Routes');
+			Tasks.init(server, configs, database);
+			Users.init(server, configs, database);
 
-//app.use('/', routes);
-app.use('/', routes);
-//routes.init(app)
+			console.log('Routes registered sucessfully.');
 
-app.use(function(req, res, next) {
-	res.status(404).sendFile(process.cwd() + '/app/views/404.htm');
-});
+			resolve(server);
+		}).then(() => {
+			server.register([require('inert')], (err) => {
+				let path = process.cwd() + '/../public/';
+				console.log('Static serving @ ' + path);
+				server.route({
+					method: 'GET',
+					path: '/{param*}',
+					handler: {
+						directory: {
+							path: path
+						}
+					}
+				});
+			});
+			resolve(server);
+		});
 
-ioServer.listen(port);
-*/
+	});
+}
