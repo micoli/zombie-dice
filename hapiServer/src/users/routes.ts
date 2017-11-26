@@ -14,7 +14,7 @@ export default function (server: Hapi.Server, serverConfigs: IServerConfiguratio
 
 	server.route({
 		method: 'GET',
-		path: '/users/info',
+		path: '/api/users/info',
 		config: {
 			handler: userController.infoUser,
 			auth: "jwt",
@@ -40,7 +40,7 @@ export default function (server: Hapi.Server, serverConfigs: IServerConfiguratio
 
 	server.route({
 		method: 'DELETE',
-		path: '/users',
+		path: '/api/users',
 		config: {
 			handler: userController.deleteUser,
 			auth: "jwt",
@@ -66,7 +66,7 @@ export default function (server: Hapi.Server, serverConfigs: IServerConfiguratio
 
 	server.route({
 		method: 'PUT',
-		path: '/users',
+		path: '/api/users',
 		config: {
 			handler: userController.updateUser,
 			auth: "jwt",
@@ -93,7 +93,7 @@ export default function (server: Hapi.Server, serverConfigs: IServerConfiguratio
 
 	server.route({
 		method: 'POST',
-		path: '/users',
+		path: '/api/users',
 		config: {
 			handler: userController.createUser,
 			tags: ['api', 'users'],
@@ -115,7 +115,7 @@ export default function (server: Hapi.Server, serverConfigs: IServerConfiguratio
 
 	server.route({
 		method: 'POST',
-		path: '/users/login',
+		path: '/api/users/login',
 		config: {
 			handler: userController.loginUser,
 			tags: ['api', 'users'],
@@ -137,29 +137,12 @@ export default function (server: Hapi.Server, serverConfigs: IServerConfiguratio
 
 	server.route({
 		method: 'GET',
-		path: '/users/auth/twitter',
+		path: '/api/users/auth/twitter',
 		config: {
 			tags	: ['api', 'users'],
 			auth	: 'twitter',
 			description: 'authenticate through twitter.',
-			handler: function(request, reply) {
-				if (!request.auth.isAuthenticated) {
-					return reply({'Authentication failed: ' : request.auth.error.message});
-				}
-
-				//Just store a part of the twitter profile information in the session as an example. You could do something
-				//more useful here - like loading or setting up an account (social signup).
-				const profile = request.auth.credentials.profile;
-				console.log(profile);
-/*
-				request.cookieAuth.set({
-					twitterId: profile.id,
-					username: profile.username,
-					displayName: profile.displayName
-				});
-*/
-				return reply.redirect('/toto');
-			}
+			handler: userController.twitterRegister
 		}
 	});
 }

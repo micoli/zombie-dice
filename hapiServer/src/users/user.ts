@@ -2,12 +2,14 @@ import * as Mongoose from "mongoose";
 import * as Bcrypt from "bcryptjs";
 
 export interface IUser extends Mongoose.Document {
-name: string;
-email: string;
-password: string;
-createdAt: Date;
-updateAt: Date;
-validatePassword(requestPassword): boolean;
+	name: string;
+	email: string;
+	source: string;
+	socialId?: string;
+	password?: string;
+	createdAt?: Date;
+	updateAt?: Date;
+	validatePassword?(requestPassword): boolean;
 }
 
 
@@ -30,29 +32,29 @@ return Bcrypt.hashSync(password, Bcrypt.genSaltSync(8));
 }
 
 UserSchema.methods.validatePassword = function (requestPassword) {
-return Bcrypt.compareSync(requestPassword, this.password);
+	return Bcrypt.compareSync(requestPassword, this.password);
 };
 
 UserSchema.pre('save', function (next) {
-const user = this;
+	const user = this;
 
-if (!user.isModified('password')) {
+	if (!user.isModified('password')) {
+		return next();
+	}
+
+	user.password = hashPassword(user.password);
+
 	return next();
-}
-
-user.password = hashPassword(user.password);
-
-return next();
 });
 
 UserSchema.pre('findOneAndUpdate', function () {
-const password = hashPassword(this.getUpdate().$set.password);
+	const password = hashPassword(this.getUpdate().$set.password);
 
-if (!password) {
-	return;
-}
+	if (!password) {
+		return;
+	}
 
-this.findOneAndUpdate({}, { password: password });
+	this.findOneAndUpdate({}, { password: password });
 });
 
 export const UserModel = Mongoose.model<IUser>('User', UserSchema);

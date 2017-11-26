@@ -29,7 +29,7 @@ export default (): IPlugin => {
 							],
 							swaggerUI: true,
 							documentationPage: true,
-							documentationPath: '/docs'
+							documentationPath: '/api/docs'
 						}
 					}
 				],
