@@ -10,6 +10,7 @@ const tslint = require('gulp-tslint');
 const mocha = require('gulp-mocha');
 const shell = require('gulp-shell');
 const env = require('gulp-env');
+var connect = require('gulp-connect');
 
 const tsProject = ts.createProject({
 	declaration : true,
@@ -100,11 +101,31 @@ gulp.task('configs', (cb) => {
 		.pipe(gulp.dest('./build/src/configurations'));
 });
 
+gulp.task('production',['build'], (cb) => {
+	nodemon({
+		script : 'build/src/server.js',
+	})
+	.once('start', () => {
+		console.log('start')
+	})
+	.on('restart', function() {
+		console.log('Restarted!')
+	})
+	.on('crash', function() {
+		console.error('Application has crashed!\n')
+		stream.emit('restart', 2) // restart the server in 10 seconds
+	});
+});
 
-gulp.task('build', [ 'tslint', 'compile-tsc', 'configs' ], () => {
+
+gulp.task('build', [ 'compile-tsc', 'configs' ], () => {
 	console.log('Building the project ...');
 });
 
+
+gulp.task('procfile', ['production' ], () => {
+	console.log('Starting for heroku procfile...');
+});
 /**
  * Run tests.
  */
