@@ -1,19 +1,20 @@
-'use strict';
+import { IUser } from "../database/schemas/user";
+import { IDatabase,getDatatase } from "../database";
 
-var userModel = require('../database').models.user;
+let database = getDatatase();
 
-var create = function (data, callback){
-	var newUser = new userModel(data);
-	//console.log('newUser',newUser,data,callback);
+export function create (data, callback){
+	var newUser = new database.userModel(data);
 	newUser.save(callback);
 };
 
-var findOne = function (data, callback){
-	userModel.findOne(data, callback);
+export function findOne (data, callback){
+	console.log('findOne')
+	database.userModel.findOne(data, callback);
 }
 
-var findById = function (id, callback){
-	userModel.findById(id, callback);
+export function findById  (id, callback){
+	database.userModel.findById(id, callback);
 }
 
 /**
@@ -21,9 +22,11 @@ var findById = function (id, callback){
  * This method is used ONLY to find user accounts registered via Social Authentication.
  *
  */
-var findOrCreate = function(data, callback){
+export function findOrCreate (data, callback){
 	findOne({'socialId': data.id}, function(err, user){
-		if(err) { return callback(err); }
+		if(err) {
+			return callback(err);
+		}
 		if(user){
 			return callback(err, user);
 		} else {
@@ -34,7 +37,7 @@ var findOrCreate = function(data, callback){
 			};
 
 			// To avoid expired Facebook CDN URLs
-			// Request user's profile picture using user id 
+			// Request user's profile picture using user id
 			// @see http://stackoverflow.com/a/34593933/6649553
 			if(data.provider == "facebook" && userData.picture){
 				userData.picture = "http://graph.facebook.com/" + data.id + "/picture?type=large";
@@ -47,11 +50,7 @@ var findOrCreate = function(data, callback){
 	});
 }
 
-/**
- * A middleware allows user to get access to pages ONLY if the user is already logged in.
- *
- */
-var isAuthenticated = function (req, res, next) {
+export function isAuthenticated  (req, res, next) {
 	if(req.isAuthenticated()){
 		next();
 	}else{
@@ -59,13 +58,16 @@ var isAuthenticated = function (req, res, next) {
 	}
 }
 
-module.exports = { 
-	create, 
-	findOne, 
-	findById, 
-	findOrCreate, 
-	isAuthenticated 
+/*
+module.exports = {
+	create,
+	findOne,
+	findById,
+	findOrCreate,
+	isAuthenticated
 };
+*/
+
 /*
 
 
@@ -98,7 +100,7 @@ export function findOrCreate (data, callback){
 			};
 
 			// To avoid expired Facebook CDN URLs
-			// Request user's profile picture using user id 
+			// Request user's profile picture using user id
 			// @see http://stackoverflow.com/a/34593933/6649553
 			if(data.provider == "facebook" && userData.picture){
 				userData.picture = "http://graph.facebook.com/" + data.id + "/picture?type=large";

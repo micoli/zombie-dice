@@ -4,8 +4,6 @@ import {config} from '../config'
 var redis 	= require('redis').createClient;
 var adapter = require('socket.io-redis');
 
-var Room = require('../models/room');
-
 var ioEvents = function(io) {
 
 	io.of('/chatroom').on('connection', function(socket) {

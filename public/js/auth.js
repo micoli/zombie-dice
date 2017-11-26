@@ -139,6 +139,7 @@
 
 		authService.setIdentity = function(token) {
 			_currentIdentity = jwtHelper.decodeToken(token);
+			console.log(_currentIdentity);
 			$rootScope.$broadcast('authentication:login', _currentIdentity);
 			_authenticated = true;
 			authService.setTokenId(token);	

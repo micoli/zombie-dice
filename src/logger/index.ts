@@ -1,8 +1,6 @@
-'use strict';
-
 var winston = require('winston');
 
-var logger = new (winston.Logger)({
+export const logger = new (winston.Logger)({
 	transports: [
 		new (winston.transports.File)({
 			level: 'debug',
@@ -18,8 +16,6 @@ var logger = new (winston.Logger)({
 	],
 	exitOnError: false
 });
-
-module.exports = logger;
 
 /*
 

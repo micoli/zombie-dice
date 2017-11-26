@@ -1,26 +1,34 @@
+import * as Mongoose from "mongoose";
 import {config} from '../config'
-import * as Mongoose from 'mongoose'
+import { IUser, UserModel } from "./schemas/user";
 
-let dbURI = "mongodb://" + 
-			encodeURIComponent(config.db.username) + ":" + 
-			encodeURIComponent(config.db.password) + "@" + 
-			config.db.host + ":" + 
-			config.db.port + "/" + 
-			config.db.name;
-Mongoose.connect(dbURI);
+export interface IDatabase {
+	userModel: Mongoose.Model<IUser>;
+}
 
-Mongoose.connection.on('error', function(err) {
-	if(err) throw err;
-});
+export function getDatatase(): IDatabase {
 
-global.Promise = require('q').Promise; 
-require('mongoose').Promise = global.Promise;
+	let dbURI = "mongodb://" +
+		encodeURIComponent(config.db.username) + ":" +
+		encodeURIComponent(config.db.password) + "@" +
+		config.db.host + ":" +
+		config.db.port + "/" +
+		config.db.name;
 
-module.exports = { 
-	Mongoose, 
-	models: {
-		user: require('./schemas/user.js'),
-		room: require('./schemas/room.js')
-	}
-};
+	(<any>Mongoose).Promise = Promise;
+	Mongoose.connect(process.env.MONGO_URL || dbURI);
 
+	let mongoDb = Mongoose.connection;
+
+	mongoDb.on('error', () => {
+		console.log(`Unable to connect to database: ${dbURI}`);
+	});
+
+	mongoDb.once('open', () => {
+		console.log(`Connected to database: ${dbURI}`);
+	});
+
+	return {
+		userModel: UserModel
+	};
+}

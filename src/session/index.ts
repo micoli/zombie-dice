@@ -6,16 +6,6 @@ import {config} from '../config'
 
 var init = function () {
 	//return cookieSession({ secret: config.sessionSecret});
-	return expressSession({ 
-		secret: config.sessionSecret , 
-		key: 'sid',
-		resave: true,
-		saveUninitialized: true, 
-		maxAge: 360*5 ,
-		cookie: {
-			secure: false 
-		}
-	})
 
 	if(process.env.NODE_ENV === 'production') {
 		return expressSession({
@@ -31,39 +21,17 @@ var init = function () {
 			//store: new MongoStore({ mongooseConnection: db.Mongoose.connection })
 		});
 	} else {
-		return expressSession({
-			secret: config.sessionSecret,
-			resave: true,
-			cookie: {
-				secure: true,
-				maxage: 6000000
-			},
-			proxy: false,
-			unset: 'destroy',
-			saveUninitialized: true
+		return expressSession({ 
+			secret : config.sessionSecret , 
+			key : 'sid',
+			resave : true,
+			saveUninitialized : true, 
+			maxAge : 360*5 ,
+			cookie : {
+				secure: false 
+			}
 		});
 	}
 }
 
 module.exports = init();
-
-/*
-
-import * as expressSession from 'express-session'
-import config from '../config'
-
-var init = function () {
-	return expressSession({ 
-		secret : config.sessionSecret , 
-		key : 'sid',
-		resave : true,
-		saveUninitialized : true, 
-		maxAge : 360*5 ,
-		cookie : {
-			secure : false 
-		}
-	})
-}
-
-module.exports = init();
-*/

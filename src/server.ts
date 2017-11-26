@@ -5,7 +5,7 @@ var path			= require('path');
 var bodyParser	= require('body-parser');
 var routes		= require('./routes');
 var session		= require('./session');
-var passport			= require('./auth');
+var passport		= require('./auth');
 var ioServer		= require('./socket')(app);
 var logger		= require('./logger');
 var config		= require('./config');
@@ -19,13 +19,12 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(__dirname+'/../../public'));
 app.use(session)
-//auth.init(app)
 app.use(passport.initialize());
 app.use(passport.session());
 app.use('/', routes);
 
 app.use(function(req, res, next) {
-  res.status(404).sendFile(process.cwd() + '/app/views/404.htm');
+	res.status(404).sendFile(process.cwd() + '/app/views/404.htm');
 });
 
 ioServer.listen(port);
