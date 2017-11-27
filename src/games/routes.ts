@@ -1,24 +1,24 @@
 import * as Hapi from "hapi";
 import * as Joi from "joi";
-import TaskController from "./task-controller";
-import * as TaskValidator from "./task-validator";
+import GameController from "./game-controller";
+import * as GameValidator from "./game-validator";
 import { jwtValidator } from "../users/user-validator";
 import { IDatabase } from "../database";
 import { IServerConfigurations } from "../configurations";
 
 export default function (server: Hapi.Server, configs: IServerConfigurations, database: IDatabase) {
 
-	const taskController = new TaskController(configs, database);
-	server.bind(taskController);
+	const gameController = new GameController(configs, database);
+	server.bind(gameController);
 
 	server.route({
 		method: 'GET',
-		path: '/api/tasks/{id}',
+		path: '/api/games/{id}',
 		config: {
-			handler: taskController.getTaskById,
+			handler: gameController.getGameById,
 			auth: "jwt",
-			tags: ['api', 'tasks'],
-			description: 'Get task by id.',
+			tags: ['api', 'games'],
+			description: 'Get game by id.',
 			validate: {
 				params: {
 					id: Joi.string().required()
@@ -29,10 +29,10 @@ export default function (server: Hapi.Server, configs: IServerConfigurations, da
 				'hapi-swagger': {
 					responses: {
 						'200': {
-							'description': 'Task founded.'
+							'description': 'Game founded.'
 						},
 						'404': {
-							'description': 'Task does not exists.'
+							'description': 'Game does not exists.'
 						}
 					}
 				}
@@ -42,12 +42,12 @@ export default function (server: Hapi.Server, configs: IServerConfigurations, da
 
 	server.route({
 		method: 'GET',
-		path: '/api/tasks',
+		path: '/api/games',
 		config: {
-			handler: taskController.getTasks,
+			handler: gameController.getGames,
 			auth: "jwt",
-			tags: ['api', 'tasks'],
-			description: 'Get all tasks.',
+			tags: ['api', 'games'],
+			description: 'Get all games.',
 			validate: {
 				query: {
 					top: Joi.number().default(5),
@@ -60,12 +60,12 @@ export default function (server: Hapi.Server, configs: IServerConfigurations, da
 
 	server.route({
 		method: 'DELETE',
-		path: '/api/tasks/{id}',
+		path: '/api/games/{id}',
 		config: {
-			handler: taskController.deleteTask,
+			handler: gameController.deleteGame,
 			auth: "jwt",
-			tags: ['api', 'tasks'],
-			description: 'Delete task by id.',
+			tags: ['api', 'games'],
+			description: 'Delete game by id.',
 			validate: {
 				params: {
 					id: Joi.string().required()
@@ -76,10 +76,10 @@ export default function (server: Hapi.Server, configs: IServerConfigurations, da
 				'hapi-swagger': {
 					responses: {
 						'200': {
-							'description': 'Deleted Task.',
+							'description': 'Deleted Game.',
 						},
 						'404': {
-							'description': 'Task does not exists.'
+							'description': 'Game does not exists.'
 						}
 					}
 				}
@@ -89,27 +89,27 @@ export default function (server: Hapi.Server, configs: IServerConfigurations, da
 
 	server.route({
 		method: 'PUT',
-		path: '/api/tasks/{id}',
+		path: '/api/games/{id}',
 		config: {
-			handler: taskController.updateTask,
+			handler: gameController.updateGame,
 			auth: "jwt",
-			tags: ['api', 'tasks'],
-			description: 'Update task by id.',
+			tags: ['api', 'games'],
+			description: 'Update game by id.',
 			validate: {
 				params: {
 					id: Joi.string().required()
 				},
-				payload: TaskValidator.updateTaskModel,
+				payload: GameValidator.updateGameModel,
 				headers: jwtValidator
 			},
 			plugins: {
 				'hapi-swagger': {
 					responses: {
 						'200': {
-							'description': 'Deleted Task.',
+							'description': 'Deleted Game.',
 						},
 						'404': {
-							'description': 'Task does not exists.'
+							'description': 'Game does not exists.'
 						}
 					}
 				}
@@ -119,21 +119,21 @@ export default function (server: Hapi.Server, configs: IServerConfigurations, da
 
 	server.route({
 		method: 'POST',
-		path: '/api/tasks',
+		path: '/api/games',
 		config: {
-			handler: taskController.createTask,
+			handler: gameController.createGame,
 			auth: "jwt",
-			tags: ['api', 'tasks'],
-			description: 'Create a task.',
+			tags: ['api', 'games'],
+			description: 'Create a game.',
 			validate: {
-				payload: TaskValidator.createTaskModel,
+				payload: GameValidator.createGameModel,
 				headers: jwtValidator
 			},
 			plugins: {
 				'hapi-swagger': {
 					responses: {
 						'201': {
-							'description': 'Created Task.'
+							'description': 'Created Game.'
 						}
 					}
 				}

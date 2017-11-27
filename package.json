@@ -40,7 +40,8 @@
 		"nconf": "^0.8.5",
 		"nodemon": "^1.11.0",
 		"path": "^0.12.7",
-		"vision": "^4.1.1"
+		"vision": "^4.1.1",
+		"wreck": "^14.0.2"
 	},
 	"devDependencies": {
 		"@types/bcryptjs": "^2.4.0",

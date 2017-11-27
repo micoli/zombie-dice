@@ -2,12 +2,12 @@ import * as Hapi from "hapi";
 import * as Boom from "boom";
 import * as Joi from "joi";
 import UserController from "./user-controller";
-import { UserModel } from "./user";
+import {UserModel} from "./user";
 import * as UserValidator from "./user-validator";
-import { IDatabase } from "../database";
-import { IServerConfigurations } from "../configurations";
+import {IDatabase} from "../database";
+import {IServerConfigurations} from "../configurations";
 
-export default function (server: Hapi.Server, serverConfigs: IServerConfigurations, database: IDatabase) {
+export default function(server: Hapi.Server, serverConfigs: IServerConfigurations, database: IDatabase) {
 
 	const userController = new UserController(serverConfigs, database);
 	server.bind(userController);
@@ -137,10 +137,10 @@ export default function (server: Hapi.Server, serverConfigs: IServerConfiguratio
 
 	server.route({
 		method: 'GET',
-		path: '/api/users/auth/twitter',
+		path: '/api/auth/twitter',
 		config: {
-			tags	: ['api', 'users'],
-			auth	: 'twitter',
+			tags: ['api', 'users'],
+			auth: 'twitter',
 			description: 'authenticate through twitter.',
 			handler: userController.twitterRegister
 		}

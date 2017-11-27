@@ -1,10 +1,10 @@
 import * as Hapi from "hapi";
 import * as Boom from "boom";
-import { ITask } from "./task";
+import { IGame } from "./game";
 import { IDatabase } from "../database";
 import { IServerConfigurations } from "../configurations";
 
-export default class TaskController {
+export default class GameController {
 
 	private database: IDatabase;
 	private configs: IServerConfigurations;
@@ -14,32 +14,32 @@ export default class TaskController {
 		this.database = database;
 	}
 
-	public async createTask(request: Hapi.Request, reply: Hapi.ReplyNoContinue) {
+	public async createGame(request: Hapi.Request, reply: Hapi.ReplyNoContinue) {
 		let userId = request.auth.credentials.id;
-		var newTask: ITask = request.payload;
-		newTask.userId = userId;
+		var newGame: IGame = request.payload;
+		newGame.userId = userId;
 
 		try {
-			let task: ITask = await this.database.taskModel.create(newTask);
-			return reply(task).code(201);
+			let game: IGame = await this.database.gameModel.create(newGame);
+			return reply(game).code(201);
 		} catch (error) {
 			return reply(Boom.badImplementation(error));
 		}
 	}
 
-	public async updateTask(request: Hapi.Request, reply: Hapi.ReplyNoContinue) {
+	public async updateGame(request: Hapi.Request, reply: Hapi.ReplyNoContinue) {
 		let userId = request.auth.credentials.id;
 		let id = request.params["id"];
 
 		try {
-			let task: ITask = await this.database.taskModel.findByIdAndUpdate(
+			let game: IGame = await this.database.gameModel.findByIdAndUpdate(
 				{ _id: id, userId: userId },
 				{ $set: request.payload },
 				{ new: true }
 			);
 
-			if (task) {
-				reply(task);
+			if (game) {
+				reply(game);
 			} else {
 				reply(Boom.notFound());
 			}
@@ -49,38 +49,38 @@ export default class TaskController {
 		}
 	}
 
-	public async deleteTask(request: Hapi.Request, reply: Hapi.ReplyNoContinue) {
+	public async deleteGame(request: Hapi.Request, reply: Hapi.ReplyNoContinue) {
 		let id = request.params["id"];
 		let userId = request.auth.credentials.id;
 
-		let deletedTask = await this.database.taskModel.findOneAndRemove({ _id: id, userId: userId });
+		let deletedGame = await this.database.gameModel.findOneAndRemove({ _id: id, userId: userId });
 
-		if (deletedTask) {
-			return reply(deletedTask);
+		if (deletedGame) {
+			return reply(deletedGame);
 		} else {
 			return reply(Boom.notFound());
 		}
 	}
 
-	public async getTaskById(request: Hapi.Request, reply: Hapi.ReplyNoContinue) {
+	public async getGameById(request: Hapi.Request, reply: Hapi.ReplyNoContinue) {
 		let userId = request.auth.credentials.id;
 		let id = request.params["id"];
 
-		let task = await this.database.taskModel.findOne({ _id: id, userId: userId }).lean(true);
+		let game = await this.database.gameModel.findOne({ _id: id, userId: userId }).lean(true);
 
-		if (task) {
-			reply(task);
+		if (game) {
+			reply(game);
 		} else {
 			reply(Boom.notFound());
 		}
 	}
 
-	public async getTasks(request: Hapi.Request, reply: Hapi.ReplyNoContinue) {
+	public async getGames(request: Hapi.Request, reply: Hapi.ReplyNoContinue) {
 		let userId = request.auth.credentials.id;
 		let top = request.query['top'];
 		let skip = request.query['skip'];
-		let tasks = await this.database.taskModel.find({ userId: userId }).lean(true).skip(skip).limit(top);
+		let games = await this.database.gameModel.find({ userId: userId }).lean(true).skip(skip).limit(top);
 
-		return reply(tasks);
+		return reply(games);
 	}
 }

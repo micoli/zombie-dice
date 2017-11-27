@@ -1,12 +1,13 @@
 import * as Hapi from "hapi";
 import * as Boom from "boom";
-import { IPlugin } from "./plugins/interfaces";
-import { IServerConfigurations } from "./configurations";
-import * as Tasks from "./tasks";
+import {IPlugin} from "./plugins/interfaces";
+import {IServerConfigurations} from "./configurations";
+import * as Tasks from "./games";
 import * as Users from "./users";
-import { IDatabase } from "./database";
+import {IDatabase} from "./database";
 import * as Path from 'Path';
 import * as socket from './socket';
+import * as Wreck from 'wreck';
 
 export function init(configs: IServerConfigurations, database: IDatabase): Promise<Hapi.Server> {
 
@@ -22,13 +23,6 @@ export function init(configs: IServerConfigurations, database: IDatabase): Promi
 			}
 		});
 
-		/*var io = require('socket.io')(server.listener);
-		io.on('connection', function (socket) {
-			socket.emit('Oh hii!');
-			socket.on('burp', function () {
-				socket.emit('Excuse you!');
-			});
-		});*/
 		if (configs.routePrefix) {
 			server.realm.modifiers.route.prefix = configs.routePrefix;
 		}
@@ -60,7 +54,7 @@ export function init(configs: IServerConfigurations, database: IDatabase): Promi
 		}).then(() => {
 			server.register([require('inert')], (err) => {
 				let path = process.cwd() + '/public/';
-				console.log('Static serving @ ' + path);
+				console.log('Static serving at ' + path);
 				server.route({
 					method: 'GET',
 					path: '/{param*}',
@@ -73,7 +67,16 @@ export function init(configs: IServerConfigurations, database: IDatabase): Promi
 			});
 			resolve(server);
 		}).then(() => {
-			socket.register(server , {} );
+			server.ext('onPreResponse', function (request, reply) {
+				if (request.route.path.match( /^\/api\/auth/ ) && request.response.statusCode === 302 && request.auth.credentials === null) {
+					console.log( request.response );
+					return reply(request.generateResponse({
+						success : true,
+						redirect : request.response.headers.location
+					}));
+				}
+				return reply.continue();
+			});
 			resolve(server);
 		});
 

@@ -1,6 +1,6 @@
 import * as Mongoose from "mongoose";
 
-export interface ITask extends Mongoose.Document {
+export interface IGame extends Mongoose.Document {
   userId: string;
   name: string;
   description: string;
@@ -9,7 +9,7 @@ export interface ITask extends Mongoose.Document {
   updateAt: Date;
 }
 
-export const TaskSchema = new Mongoose.Schema({
+export const GameSchema = new Mongoose.Schema({
   userId: { type: String, required: true },
   name: { type: String, required: true },
   description: String,
@@ -18,4 +18,4 @@ export const TaskSchema = new Mongoose.Schema({
     timestamps: true
   });
 
-export const TaskModel = Mongoose.model<ITask>('Task', TaskSchema);
+export const GameModel = Mongoose.model<IGame>('Game', GameSchema);

@@ -16,18 +16,16 @@ export default class UserController {
 	}
 
 	private generateToken(user: IUser) {
-		const jwtSecret = this.configs.jwtSecret;
-		const jwtExpiration = this.configs.jwtExpiration;
-		const payload = {
-			id : user._id,
-			name : user.name,
-			config : {
-				rights : []
+		return Jwt.sign({
+			id: user._id,
+			name: user.name,
+			config: {
+				rights: []
 			}
-		};
-		return Jwt.sign(payload, jwtSecret, { expiresIn: jwtExpiration });
+		}, this.configs.jwtSecret, {
+			expiresIn: this.configs.jwtExpiration
+		});
 	}
-
 
 	public async loginUser(request: Hapi.Request, reply: Hapi.ReplyNoContinue) {
 		const email = request.payload.email;
@@ -36,14 +34,21 @@ export default class UserController {
 		let user: IUser = await this.database.userModel.findOne({ email: email , source:'local'});
 
 		if (!user) {
-			return reply(Boom.unauthorized("User does not exists."));
+			return reply({
+				success : false,
+				errorMessage : "User does not exists."
+			});
 		}
 
 		if (!user.validatePassword(password)) {
-			return reply(Boom.unauthorized("Password is invalid."));
+			return reply({
+				success : false,
+				errorMessage : "Password is invalid."
+			});
 		}
 
 		reply({
+			success : true,
 			token: this.generateToken(user)
 		});
 	}
@@ -52,44 +57,19 @@ export default class UserController {
 		try {
 			request.payload.source = 'local';
 			request.payload.socialId = 'local';
-			let user: any = await this.database.userModel.create(request.payload);
-			return reply({ token: this.generateToken(user)}).code(201);
-		} catch (error) {
-			return reply(Boom.badImplementation(error));
-		}
-	}
 
-	public async twitterRegister(request: Hapi.Request, reply: Hapi.ReplyNoContinue) {
-		try {
-			if (!request.auth.isAuthenticated) {
-				return reply({'Authentication failed: ' : request.auth.error.message});
-			}
-
-			const profile = request.auth.credentials.profile;
-			let userStruct = {
-				source : 'twitter',
-				email : profile.username,
-				socialId : profile.id,
-				name : profile.displayName,
-				password : 'external'
-			};
-
-			let user: IUser = await this.database.userModel.findOne({
-				email : userStruct.email ,
-				source :'twitter'
+			let userPresent: IUser = await this.database.userModel.findOne({
+				email : request.payload.email ,
+				source : request.payload.source
 			});
 
-			if (!user) {
-				user = await this.database.userModel.create(userStruct);
+			if (userPresent) {
+				return reply({success:false, message:'user already exists'}).code(201);
 			}
 
-			console.log('- profile' , profile);
-			console.log('- user' , user);
-			console.log('- token' , this.generateToken(user));
+			let user: any = await this.database.userModel.create(request.payload);
+			return reply({success:true, token: this.generateToken(user)}).code(201);
 
-			return reply.redirect('/#/auth/callback/' + this.generateToken(user));
-
-			//return reply({ token: this.generateToken(user)}).code(201);
 		} catch (error) {
 			return reply(Boom.badImplementation(error));
 		}
@@ -118,5 +98,42 @@ export default class UserController {
 		let user: IUser = await this.database.userModel.findById(id);
 
 		reply(user);
+	}
+
+	public async twitterRegister(request: Hapi.Request, reply: Hapi.ReplyNoContinue) {
+		try {
+			if (!request.auth.isAuthenticated) {
+				return reply({
+					success : false,
+					message : 'Authentication failed: ' + request.auth.error.message
+				});
+			}
+
+			const profile = request.auth.credentials.profile;
+			let userStruct = {
+				source : 'twitter',
+				email : profile.username,
+				socialId : profile.id,
+				name : profile.displayName,
+				password : 'external'
+			};
+
+			let user: IUser = await this.database.userModel.findOne({
+				email : userStruct.email ,
+				source :'twitter'
+			});
+
+			if (!user) {
+				user = await this.database.userModel.create(userStruct);
+			}
+
+			//console.log('- profile' , profile);
+			//console.log('- user' , user);
+			//console.log('- token' , this.generateToken(user));
+
+			return reply.redirect('/#/auth/callback/' + this.generateToken(user));
+		} catch (error) {
+			return reply(Boom.badImplementation(error));
+		}
 	}
 }

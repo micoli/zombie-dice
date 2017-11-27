@@ -11,6 +11,7 @@ const mocha = require('gulp-mocha');
 const shell = require('gulp-shell');
 const env = require('gulp-env');
 var connect = require('gulp-connect');
+var outDir='build';
 
 const tsProject = ts.createProject({
 	declaration : true,
@@ -22,7 +23,15 @@ const tsProject = ts.createProject({
 	typeRoots : [ "node_modules/@types" ],
 });
 
-gulp.task('compile-tsc', function() {
+gulp.task('lint-ts', () => {
+	return gulp.src('src/**/*.ts')
+		.pipe(tslint({
+			formatter : 'prose'
+		}))
+		.pipe(tslint.report());
+});
+
+gulp.task('compile-ts','typescript compile', function() {
 	var tsResult = gulp.src([ 'src/**/*.ts' ])
 		.pipe(tsProject());
 
@@ -38,13 +47,9 @@ gulp.task('compile-test', function() {
 		.pipe(gulp.dest('build/test/'))
 });
 
-gulp.task('watch-tsc', [ 'tslint','compile-tsc', 'configs' ], function() {
-	gulp.watch('src/**/*.ts', [ 'tslint','compile-tsc', 'configs' ]);
-});
-
-gulp.task('develop', [ 'compile-tsc' ], function() {
+gulp.task('develop','server developement tool', [ 'compile-ts' ], function() {
 	var stream = nodemon({
-		script : 'build/src/server.js',
+		script : 'build/src/index.js',
 		ext : 'ts json',
 		ignore : [ 'ignored.js' ],
 		watch : [ 'src' ],
@@ -52,58 +57,14 @@ gulp.task('develop', [ 'compile-tsc' ], function() {
 			var tasks = []
 			if (!changedFiles) return tasks;
 			changedFiles.forEach(function(file) {
-				if (path.extname(file) === '.ts' && !~tasks.indexOf('tslint')) tasks.push('tslint')
-				if (path.extname(file) === '.ts' && !~tasks.indexOf('compile-tsc')) tasks.push('compile-tsc')
+				//if (path.extname(file) === '.ts' && !~tasks.indexOf('lint-ts')) tasks.push('lint-ts')
+				if (path.extname(file) === '.ts' && !~tasks.indexOf('compile-ts')) tasks.push('compile-ts')
 				if (path.extname(file) === '.json' && !~tasks.indexOf('configs')) tasks.push('configs')
-			//if (path.extname(file) === '.css' && !~tasks.indexOf('cssmin')) tasks.push('cssmin')
+				//if (path.extname(file) === '.css' && !~tasks.indexOf('cssmin')) tasks.push('cssmin')
 			})
+			console.log('tasks to do',tasks);
 			return tasks
 		}
-	})
-	stream
-		.once('start', () => {
-			console.log('start')
-		})
-		.on('restart', function() {
-			console.log('Restarted!')
-		})
-		.on('crash', function() {
-			console.error('Application has crashed!\n')
-			stream.emit('restart', 2) // restart the server in 10 seconds
-		});
-
-});
-
-/**
- * Remove build directory.
- */
-gulp.task('clean', function() {
-	return gulp.src(outDir, {
-		read : false
-	})
-		.pipe(rimraf());
-});
-
-/**
- * Lint all custom TypeScript files.
- */
-gulp.task('tslint', () => {
-	return gulp.src('src/**/*.ts')
-		.pipe(tslint({
-			formatter : 'prose'
-		}))
-		.pipe(tslint.report());
-});
-
-
-gulp.task('configs', (cb) => {
-	return gulp.src("src/configurations/*.json")
-		.pipe(gulp.dest('./build/src/configurations'));
-});
-
-gulp.task('production',['build'], (cb) => {
-	nodemon({
-		script : 'build/src/server.js',
 	})
 	.once('start', () => {
 		console.log('start')
@@ -115,21 +76,46 @@ gulp.task('production',['build'], (cb) => {
 		console.error('Application has crashed!\n')
 		stream.emit('restart', 2) // restart the server in 10 seconds
 	});
+
 });
 
+gulp.task('clean','', function() {
+	return gulp.src(outDir, {
+		read : false
+	})
+		.pipe(rimraf());
+});
 
-gulp.task('build', [ 'compile-tsc', 'configs' ], () => {
+gulp.task('configs', 'copy configs', (cb) => {
+	return gulp.src("src/configurations/*.json")
+		.pipe(gulp.dest('./build/src/configurations'));
+});
+
+gulp.task('server-production',['build'], (cb) => {
+	nodemon({
+		script : 'build/src/index.js',
+	})
+	.once('start', () => {
+		console.log('start')
+	})
+	.on('restart', function() {
+		console.log('Restarted!')
+	})
+	.on('crash', function() {
+		console.error('Application has crashed!\n')
+		stream.emit('restart', 2)
+	});
+});
+
+gulp.task('build', 'typescript compile and copy configs', [ 'compile-ts', 'configs' ], () => {
 	console.log('Building the project ...');
 });
 
-
-gulp.task('procfile', ['production' ], () => {
+gulp.task('procfile', ['server-production' ], () => {
 	console.log('Starting for heroku procfile...');
 });
-/**
- * Run tests.
- */
-gulp.task('test', [ 'build' ], (cb) => {
+
+gulp.task('test', 'launch tests', [ 'build','compile-test' ], (cb) => {
 	const envs = env.set({
 		NODE_ENV : 'test'
 	});
@@ -144,6 +130,10 @@ gulp.task('test', [ 'build' ], (cb) => {
 		.once('end', () => {
 			process.exit();
 		});
+});
+
+gulp.task('watch-ts', [ 'lint-ts','compile-ts', 'configs' ], function() {
+	gulp.watch('src/**/*.ts', [ 'lint-ts','compile-ts', 'configs' ]);
 });
 
 gulp.task('default', [ 'develop' ]);

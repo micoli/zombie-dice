@@ -8,8 +8,8 @@
 			<input type="checkbox" ng-model="data.rememberCredentials" ng-init="data.rememberCredentials=true" class="ng-pristine ng-untouched ng-valid ng-not-empty">Rester connecté
 		</label>
 		<div class="clearboth"></div>
-		  <a href="/api/users/auth/facebook"><span class="glyphicon glyphicon-facebook" alt="Sign-In with Facebook">[Facebook]</span></a>
-		  <a href="/api/users/auth/twitter"><span class="glyphicon glyphicon-twitter" alt="Sign-In with Twitter">[Twitter]</span></a>
+		<button ng-click="auth('facebook')"><span class="glyphicon glyphicon-facebook" alt="Sign-In with Facebook">[Facebook]</span></button>
+		<button ng-click="auth('twitter')"><span class="glyphicon glyphicon-twitter" alt="Sign-In with Twitter">[Twitter]</span></button>
 
 		<span ng-click="data.mode='register'">S'inscrire</span>
 	</form>
