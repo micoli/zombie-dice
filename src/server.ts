@@ -52,6 +52,7 @@ export function init(configs: IServerConfigurations, database: IDatabase): Promi
 
 			resolve(server);
 		}).then(() => {
+			socket.register(server, configs, {});
 			server.register([require('inert')], (err) => {
 				let path = process.cwd() + '/public/';
 				console.log('Static serving at ' + path);
@@ -67,12 +68,14 @@ export function init(configs: IServerConfigurations, database: IDatabase): Promi
 			});
 			resolve(server);
 		}).then(() => {
-			server.ext('onPreResponse', function (request, reply) {
-				if (request.route.path.match( /^\/api\/auth/ ) && request.response.statusCode === 302 && request.auth.credentials === null) {
-					console.log( request.response );
+			server.ext('onPreResponse', function(request, reply) {
+				if (request.route.path.match(/^\/api\/auth/) &&
+					request.response.statusCode === 302 &&
+					request.auth.credentials === null) {
+					console.log(request.response);
 					return reply(request.generateResponse({
-						success : true,
-						redirect : request.response.headers.location
+						success: true,
+						redirect: request.response.headers.location
 					}));
 				}
 				return reply.continue();

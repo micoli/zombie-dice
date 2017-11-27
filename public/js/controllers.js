@@ -3,17 +3,34 @@
 	angular
 		.module('zombieDiceCounterApp')
 
-		.factory('mySocket', function(socketFactory) {
+		.factory('mySocket', ['socketFactory','$rootScope',function(socketFactory, $rootScope) {
 			var myIoSocket = io.connect('/chatroom');
 
 			var mySocket = socketFactory({
 				ioSocket : myIoSocket
 			});
 			mySocket.forward('someEvent');
-			return mySocket;
-		})
 
-		.controller('navCtrl', [ '$scope', '$state', 'authentication.authService', function($scope, $state, authService) {
+			$rootScope.$on('authentication:login', function(evt, args) {
+				mySocket.emit('login', args.token);
+			});
+
+			$rootScope.$on('authentication:logout', function(evt, args) {
+				mySocket.emit('logout');
+			});
+
+			return mySocket;
+		}])
+
+		.controller('navCtrl', [ '$scope', '$state', 'authentication.authService','mySocket', function($scope, $state, authService,mySocket) {
+			mySocket.emit('join', {
+				a : 1
+			}, function() {
+				console.log('cb join');
+			})
+			$scope.$on('socket:someEvent', function(ev, data) {
+				console.log(ev, data);
+			});
 
 			$scope.$on('authentication:login', function(evt, args) {
 				$scope.user = args;
@@ -37,15 +54,7 @@
 			$scope.refresh();
 		})
 
-		.controller('gameCtrl', function($scope, $http, mySocket) {
-			mySocket.emit('join', {
-				a : 1
-			}, function() {
-				console.log('cb join');
-			})
-			$scope.$on('socket:someEvent', function(ev, data) {
-				console.log(ev, data);
-			});
+		.controller('gameCtrl', function($scope, $http) {
 			var drawGraph = function(data) {
 				var svg = d3.select(document.getElementById("results-render-0"));
 				svg.selectAll("*").remove();

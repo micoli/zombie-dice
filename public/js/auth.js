@@ -134,7 +134,7 @@
 
 			authService.logout = function() {
 				_currentIdentity = null;
-				$rootScope.$broadcast('authentication:logout', _currentIdentity);
+				$rootScope.$broadcast('authentication:logout', {identity:_currentIdentity});
 				_authenticated = false;
 				authService.clearTokenId();
 			};
@@ -149,7 +149,7 @@
 			authService.setIdentity = function(token) {
 				_currentIdentity = jwtHelper.decodeToken(token);
 				console.log(_currentIdentity);
-				$rootScope.$broadcast('authentication:login', _currentIdentity);
+				$rootScope.$broadcast('authentication:login', {identity:_currentIdentity,token:token});
 				_authenticated = true;
 				authService.setTokenId(token);
 			};

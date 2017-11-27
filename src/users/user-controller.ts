@@ -36,14 +36,14 @@ export default class UserController {
 		if (!user) {
 			return reply({
 				success : false,
-				errorMessage : "User does not exists."
+				message : "User does not exists."
 			});
 		}
 
 		if (!user.validatePassword(password)) {
 			return reply({
 				success : false,
-				errorMessage : "Password is invalid."
+				message : "Password is invalid."
 			});
 		}
 
@@ -64,11 +64,17 @@ export default class UserController {
 			});
 
 			if (userPresent) {
-				return reply({success:false, message:'user already exists'}).code(201);
+				return reply({
+					success: false,
+					message: 'user already exists'
+				}).code(201);
 			}
 
 			let user: any = await this.database.userModel.create(request.payload);
-			return reply({success:true, token: this.generateToken(user)}).code(201);
+			return reply({
+				success: true,
+				token: this.generateToken(user)
+			}).code(201);
 
 		} catch (error) {
 			return reply(Boom.badImplementation(error));
