@@ -67,11 +67,11 @@
 			</div>
 		</div>
 	</div>
-	<br ng-init="tableMode=true">
-	<table class="table table-striped" ng-if="tableMode">
+	<br ng-init="data.tableMode=true">
+	<table class="table table-striped" ng-if="data.tableMode">
 		<tr>
 			<td>
-				<span ng-click="tableMode=!tableMode">R</span>
+				<span ng-click="data.tableMode=!data.tableMode">[R]</span>
 			</td>
 			<td ng-repeat="player in data.players" class="align-center">
 				<b>{{ player.name }} ({{ player.score }})</b>
@@ -86,10 +86,10 @@
 			</td>
 		</tr>
 	</table>
-	<table class="table table-striped" ng-if="!tableMode">
+	<table class="table table-striped" ng-if="!data.tableMode">
 		<tr>
 			<td>
-				<span ng-click="tableMode=!tableMode">R</span>
+				<span ng-click="data.tableMode=!data.tableMode">[R]</span>
 			</td>
 			<td ng-repeat="round in data.rounds track by $index">
 				{{ $index +1 }}
