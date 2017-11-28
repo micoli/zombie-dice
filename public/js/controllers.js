@@ -27,13 +27,14 @@
 				a : 1
 			}, function() {
 				console.log('cb join');
-			})
+			});
+
 			$scope.$on('socket:someEvent', function(ev, data) {
 				console.log(ev, data);
 			});
 
 			$scope.$on('authentication:login', function(evt, args) {
-				$scope.user = args;
+				$scope.user = args.identity;
 			});
 
 			$scope.$on('authentication:logout', function(evt, args) {

@@ -31,8 +31,8 @@ export default (): IPlugin => {
 							provider: 'twitter',
 							password: 'cookie_encryption_password_secure',
 							isSecure: false,
-							clientId: 'aPbbKXdRmNvFJRS0rBTsjhNAZ',
-							clientSecret: 'hoW5QE1GWlH2D8KuiovdaeV9hvrM8hkWOgbAdFsnv8kSXRSAjO'
+							clientId: serverConfig.social.twitter.id,
+							clientSecret: serverConfig.social.twitter.secret
 						});
 					}
 					resolve();

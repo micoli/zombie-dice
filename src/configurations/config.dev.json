@@ -12,6 +12,12 @@
 			"jwt-auth",
 			"swagger",
 			"bell"
-		]
+		],
+		"social": {
+			"twitter" : {
+				"id" : "xxx",
+				"secret" : "zzzzz"
+			}
+		}
 	}
 }

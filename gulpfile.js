@@ -43,23 +43,26 @@ gulp.task('compile-ts','typescript compile', function() {
 
 gulp.task('compile-test', function() {
 	gulp.src([ 'test/**/*.ts' ])
-		.pipets(Project())
+		.pipe(tsProject())
 		.pipe(gulp.dest('build/test/'))
 });
 
-gulp.task('develop','server developement tool', [ 'compile-ts' ], function() {
+gulp.task('develop','server developement tool', [ 'configs','compile-ts' ], function() {
 	var stream = nodemon({
 		script : 'build/src/index.js',
 		ext : 'ts json',
 		ignore : [ 'ignored.js' ],
 		watch : [ 'src' ],
+		env: {
+			'NODE_ENV': 'dev'
+		},
 		tasks : function(changedFiles) {
 			var tasks = []
 			if (!changedFiles) return tasks;
 			changedFiles.forEach(function(file) {
-				//if (path.extname(file) === '.ts' && !~tasks.indexOf('lint-ts')) tasks.push('lint-ts')
 				if (path.extname(file) === '.ts' && !~tasks.indexOf('compile-ts')) tasks.push('compile-ts')
 				if (path.extname(file) === '.json' && !~tasks.indexOf('configs')) tasks.push('configs')
+				//if (path.extname(file) === '.ts' && !~tasks.indexOf('lint-ts')) tasks.push('lint-ts')
 				//if (path.extname(file) === '.css' && !~tasks.indexOf('cssmin')) tasks.push('cssmin')
 			})
 			console.log('tasks to do',tasks);
@@ -115,7 +118,7 @@ gulp.task('procfile', ['server-production' ], () => {
 	console.log('Starting for heroku procfile...');
 });
 
-gulp.task('test', 'launch tests', [ 'build','compile-test' ], (cb) => {
+gulp.task('test', 'launch tests', [ 'compile-test','configs' ], (cb) => {
 	const envs = env.set({
 		NODE_ENV : 'test'
 	});
