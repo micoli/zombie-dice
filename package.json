@@ -41,20 +41,6 @@
 		"nodemon": "^1.11.0",
 		"path": "^0.12.7",
 		"vision": "^4.1.1",
-		"wreck": "^14.0.2"
-	},
-	"devDependencies": {
-		"@types/bcryptjs": "^2.4.0",
-		"@types/boom": "^4.3.2",
-		"@types/chai": "^3.5.2",
-		"@types/hapi": "^16.1.2",
-		"@types/joi": "^10.3.2",
-		"@types/jsonwebtoken": "^7.2.0",
-		"@types/mocha": "^2.2.41",
-		"@types/mongoose": "^4.7.13",
-		"@types/nconf": "0.0.34",
-		"@types/node": "^7.0.21",
-		"@types/sinon": "^2.2.2",
 		"chai": "^3.5.0",
 		"gulp": "^3.9.1",
 		"gulp-connect": "^5.0.0",
@@ -72,7 +58,21 @@
 		"node": "0.0.0",
 		"sinon": "^2.2.0",
 		"tslint": "^5.2.0",
-		"typescript": "^2.3.2"
+		"typescript": "^2.3.2",
+		"wreck": "^14.0.2"
+	},
+	"devDependencies": {
+		"@types/bcryptjs": "^2.4.0",
+		"@types/boom": "^4.3.2",
+		"@types/chai": "^3.5.2",
+		"@types/hapi": "^16.1.2",
+		"@types/joi": "^10.3.2",
+		"@types/jsonwebtoken": "^7.2.0",
+		"@types/mocha": "^2.2.41",
+		"@types/mongoose": "^4.7.13",
+		"@types/nconf": "0.0.34",
+		"@types/node": "^7.0.21",
+		"@types/sinon": "^2.2.2"
 	},
 	"engines": {
 		"node": ">=7.6.0"
