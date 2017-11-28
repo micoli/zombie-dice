@@ -1,0 +1,7 @@
+{
+	"name": "chat.io",
+	"description": "",
+	"repository": "",
+	"logo": "",
+	"keywords": ["real-time", "game", "nodejs", "hapi", "mongoose", "socketio", "bell"]
+}
